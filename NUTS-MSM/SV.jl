@@ -5,50 +5,48 @@
 using TransformVariables, LogDensityProblems, DynamicHMC, MCMCDiagnostics,
     Parameters, Statistics, Distributions, ForwardDiff, LinearAlgebra
 
-
-"""
-DGP is``y ∼ μ + ϵ``, where ``ϵ ∼ N(0, 1)`` IID,
-and the statistic is the sample mean and sample std. dev. (which is useless in this case)
-
-Prior for μ is flat
-"""
-function dgp(μ, shocks)
-    n = size(shocks,1)
-    y = shocks .+ μ
-    m = sqrt(n)*[mean(y);std(y)]
-end
+include("SVlib.jl")
 
 # generate data
-μ_true = 3.0
-n = 100 # sample size
-S = 1000 # number of simulations
-shocks = randn(n)
-m = dgp(μ_true, shocks)
-shocks = randn(n, S) # fixed shocks for simulations
+σu = 0.69
+ρ = 0.9
+σe = 0.363
+n = 500 # sample size
+burnin = 1000
+S = 100 # number of simulations
+shocks_u = randn(n+burnin,1)
+shocks_e = randn(n+burnin,1)
+m = SVmodel(σu, ρ, σe, shocks_u, shocks_e)
+shocks_u = randn(n+burnin,S) # fixed shocks for simulations
+shocks_e = randn(n+burnin,S) # fixed shocks for simulations
 
 # Define a structure for the problem
 # Should hold the data and  the parameters of prior distributions.
-struct MSM_Problem{Tm <: Vector, Tshocks <: Array}
+struct MSM_Problem{Tm <: Vector, Tshocks_u <: Array, Tshocks_e <: Array }
     "statistic"
     m::Tm
     "shocks"
-    shocks::Tshocks
+    shocks_u::Tshocks_u
+    shocks_e::Tshocks_e
+
 end
 
 # Make the type callable with the parameters *as a single argument*.
 function (problem::MSM_Problem)(θ)
-    @unpack m, shocks = problem   # extract the data
-    @unpack μ = θ         # extract parameters (only one here)
-    S = size(shocks,2)
-    mbar = zeros(2,1)
-    Σ = zeros(2,2)
+    @unpack m, shocks_u, shocks_e = problem   # extract the data
+    @unpack σu, ρ, σe = θ         # extract parameters (only one here)
+    S = size(shocks_u,2)
+    k = size(m,1)
+    mbar = zeros(k)
+    Σ = zeros(k,k)
     for s = 1:S
-        mm = dgp(μ,shocks[:,s])
+        mm = SVmodel(σu, ρ, σe, shocks_u[:,s], shocks_e[:,s])
         mbar += mm/S
         Σ += mm*mm'/S
     end
     mbar = mbar[:]
     x = (m .- mbar)
+    #Σ = eye(k)
     logL = try
         logL = -0.5*log(det(Σ)) - 0.5*x'*inv(Σ)*x
     catch
@@ -57,9 +55,9 @@ function (problem::MSM_Problem)(θ)
 end
 
 # original problem, without transformation of parameters
-p = MSM_Problem(m, shocks)
+p = MSM_Problem(m, shocks_u, shocks_e)
 # define the transformation of parameters (in this case, an identity)
-problem_transformation(p::MSM_Problem) = as((μ=as(Array,1),))
+problem_transformation(p::MSM_Problem) = as((σu=as𝕀, ρ=as𝕀 σe=as𝕀))
 # Wrap the problem with the transformation
 t = problem_transformation(p)
 P = TransformedLogDensity(t, p)
@@ -69,18 +67,25 @@ P = TransformedLogDensity(t, p)
 # Sample from the posterior. `chain` holds the chain (positions and
 # diagnostic information), while the second returned value is the tuned sampler
 # which would allow continuation of sampling.
-chain, NUTS_tuned = NUTS_init_tune_mcmc(∇P, 1000; ϵ=0.2)
+chain, NUTS_tuned = NUTS_init_tune_mcmc(∇P, 1000)
+
 
 # We use the transformation to obtain the posterior from the chain.
 posterior = transform.(Ref(t), get_position.(chain));
 
 # Extract the parameter and plot the posterior
-μhat = [i[1][1] for i in posterior]
-dstats(μhat)
-post_dens = npdensity(μhat)
-gui()
+σu_hat = [i[1][1] for i in posterior]
+dstats(σu_hat)
+post_dens_sigu = npdensity(σu_hat)
+# Extract the parameter and plot the posterior
+ρhat = [i[2][1] for i in posterior]
+dstats(ρhat)
+post_dens_rho = npdensity(ρhat)
+# Extract the parameter and plot the posterior
+\sigmae_hat = [i[3][1] for i in posterior]
+dstats(σe_hat)
+post_dens_sige = npdensity(σe_hat)
 
 # Effective sample sizes (of untransformed draws)
 ess = mapslices(effective_sample_size, get_position_matrix(chain); dims = 1)
 NUTS_statistics(chain)
-
