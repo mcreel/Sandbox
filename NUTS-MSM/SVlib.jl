@@ -27,17 +27,17 @@ end
 
 function aux_stat(y)
     # sig is good for sig_e
-    y, junk, sig = stnorm(y)
-    sig2 = mean(y.^2) # kurtosis
-    y = abs.(y)
-    y, m, sig3 = stnorm(y)
     IQR = quantile(y,0.75) - quantile(y,0.25)
+    y, junk, sig = stnorm(y)
+    y = abs.(y)
+    y, m, sig2 = stnorm(y)
+    IQR2 = quantile(y,0.75) - quantile(y,0.25)
     # look for evidence of volatility clusters
     mm = ma(y,5)
     mm = mm[5:end]
     clusters = quantile(mm,0.75)/quantile(mm, 0.25)
     #ϕ = HAR(y)
-    vcat(sig, sig2, sig3, IQR, clusters)[:]
+    vcat(IQR, sig, sig2, IQR2, clusters)[:]
 end
 
 # the dgp: simple discrete time SV model
@@ -46,18 +46,17 @@ function SVmodel(σu, ρ, σe, shocks_u, shocks_e)
     n = 500
     hlag = 0.0
     t = 1
-    h = ρ.*hlag + σu.*shocks_u[t] # log variance follows AR(1)
+    h = ρ.*hlag .+ σu.*shocks_u[t] # log variance follows AR(1)
     y = σe.*exp(h./2.0).*shocks_e[t]
-    ys = zeros(eltype(y),n+burnin)
-    @inbounds for t = 1:burnin+n
-        h = ρ.*hlag + σu.*shocks_u[t] # log variance follows AR(1)
+    ys = zeros(eltype(y),n)
+    for t = 1:burnin+n
+        h = ρ.*hlag .+ σu.*shocks_u[t] # log variance follows AR(1)
         y = σe.*exp(h./2.0).*shocks_e[t]
-        #y = max(y,-10.0)
-        #y = min(y,10.0)
-        ys[t] = y
+        if t > burnin 
+            ys[t-burnin] = y
+        end    
         hlag = h
     end
-    ys = ys[burnin+1:end]
     #plot(ys)
     sqrt(n).*aux_stat(ys)
 end
