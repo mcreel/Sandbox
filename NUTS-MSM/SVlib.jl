@@ -1,4 +1,6 @@
 using Statistics, Econometrics, Random, Distributions
+include("lag.jl")
+include("lags.jl")
 
 function ma(x, p)
     m = similar(x)
@@ -28,16 +30,17 @@ end
 function aux_stat(y)
     # sig is good for sig_e
     IQR = quantile(y,0.75) - quantile(y,0.25)
-    y, junk, sig = stnorm(y)
     y = abs.(y)
-    y, m, sig2 = stnorm(y)
     IQR2 = quantile(y,0.75) - quantile(y,0.25)
     # look for evidence of volatility clusters
     mm = ma(y,5)
     mm = mm[5:end]
-    clusters = quantile(mm,0.75)/quantile(mm, 0.25)
-    #ϕ = HAR(y)
-    vcat(IQR, sig, sig2, IQR2, clusters)[:]
+    clusters5 = quantile(mm,0.75)/quantile(mm, 0.25)
+    mm = ma(y,10)
+    mm = mm[10:end]
+    clusters10 = quantile(mm,0.75)/quantile(mm, 0.25)
+    ϕ = HAR(y)
+    vcat(IQR, IQR2, clusters5, clusters10, ϕ)[:]
 end
 
 # the dgp: simple discrete time SV model
