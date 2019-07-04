@@ -6,10 +6,11 @@ using TransformVariables, LogDensityProblems, DynamicHMC, MCMCDiagnostics,
     Parameters, Statistics, Distributions, ForwardDiff, LinearAlgebra
 
 include("SVlib.jl")
+const as𝕀2 = as(Real, 0.0, 2.0)
 
 # Define a structure for the problem
 # Should hold the data and  the parameters of prior distributions.
-struct MSM_Problem{Tm <: Vector{Float64}, Tn <: Int, Tshocks_u <: Array{Float64,2}, Tshocks_e <: Array{Float64,2}}
+struct MSM_Problem{Tm <: Vector, Tn <: Int, Tshocks_u <: Array, Tshocks_e <: Array }
     "statistic"
     m::Tm
     "sample size"
@@ -19,7 +20,6 @@ struct MSM_Problem{Tm <: Vector{Float64}, Tn <: Int, Tshocks_u <: Array{Float64,
     shocks_e::Tshocks_e
 
 end
-
 # Make the type callable with the parameters *as a single argument*.
 function (problem::MSM_Problem)(θ)
     @unpack m, n, shocks_u, shocks_e = problem   # extract the data
@@ -27,7 +27,7 @@ function (problem::MSM_Problem)(θ)
     S = size(shocks_u,2)
     k = size(m,1)
     ms = zeros(eltype(SVmodel(σu, ρ, σe, n, shocks_u[:,1], shocks_e[:,1])), S, k)
-    for s = 1:S
+    @Threads.threads for s = 1:S
         ms[s,:] = SVmodel(σu, ρ, σe, n, shocks_u[:,s], shocks_e[:,s])
     end
     mbar = mean(ms,dims=1)[:]
@@ -39,27 +39,8 @@ function (problem::MSM_Problem)(θ)
         logL = -Inf
     end    
 end
-#=
-# Make the type callable with the parameters *as a single argument*.
-function (problem::MSM_Problem)(θ)
-    @unpack m, n, shocks_u, shocks_e = problem   # extract the data
-    @unpack σu, ρ, σe = θ         # extract parameters (only one here)
-    S = size(shocks_u,2)
-    k = size(m,1)
-    mbar = zeros(eltype(SVmodel(σu, ρ, σe, n, shocks_u[:,1], shocks_e[:,1])), k)
-    Σ = zeros(eltype(mbar), k,k)
-    for s = 1:S
-        ms = SVmodel(σu, ρ, σe, n, shocks_u[:,s], shocks_e[:,s]) - m
-        mbar += ms/S
-        Σ += ms*ms'/S
-    end
-    logL = try
-        logL = -0.5*log(det(Σ)) - 0.5*mbar'*inv(Σ)*mbar
-    catch
-        logL = -Inf
-    end    
-end
-=#
+
+function main()
 # generate data
 σu = exp(-0.736/2.0)
 ρ = 0.9
@@ -72,22 +53,28 @@ shocks_e = randn(n+burnin,1)
 m = SVmodel(σu, ρ, σe, n, shocks_u, shocks_e)
 shocks_u = randn(n+burnin,S) # fixed shocks for simulations
 shocks_e = randn(n+burnin,S) # fixed shocks for simulations
+
 # original problem, without transformation of parameters
 p = MSM_Problem(m, n, shocks_u, shocks_e)
-# define the transformation of parameters (in this case, priors are uniform on segments of real line)
+# define the transformation of parameters (in this case, an identity)
 # σu ~ U(0,2), ρ ~U(0,1), σe ~ U(0,1)
-problem_transformation(p::MSM_Problem) =
-        as((σu=as(Real, 0.0, 2.0), ρ=as(Real, 0.0, 1.0) ,σe=as(Real,0.0,1.0)))
+problem_transformation(p::MSM_Problem) = as((σu=as𝕀2, ρ=as𝕀 ,σe=as𝕀))
 # Wrap the problem with the transformation
 t = problem_transformation(p)
 P = TransformedLogDensity(t, p)
-# use AD for the gradient
+# use AD (Flux) for the gradient
 ∇P = ADgradient(:ForwardDiff, P)
 # Sample from the posterior. `chain` holds the chain (positions and
 # diagnostic information), while the second returned value is the tuned sampler
 # which would allow continuation of sampling.
 n = dimension(problem_transformation(p))
-chain, NUTS_tuned = NUTS_init_tune_mcmc(∇P, 1000; ϵ=0.2, q = zeros(n), p = ones(n))
+#chain, NUTS_tuned = NUTS_init_tune_mcmc(∇P, 1000) 
+chain, NUTS_tuned = NUTS_init_tune_mcmc(∇P, 1000; 
+                                        ϵ=0.1, q = zeros(n), p = ones(n))
+
 # We use the transformation to obtain the posterior from the chain.
 posterior = transform.(Ref(t), get_position.(chain));
+
+return posterior, chain, NUTS_tuned
+end
 
