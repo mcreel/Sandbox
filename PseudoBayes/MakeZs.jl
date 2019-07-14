@@ -1,7 +1,6 @@
 using SV
-function MakeZs(chain)
+function MakeZs(n, chain)
     Zs = 0.0
-    n = 1000
     burnin = 100
     S = size(chain,1)
     for s = 1:S

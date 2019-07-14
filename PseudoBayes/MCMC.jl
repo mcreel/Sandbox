@@ -1,6 +1,5 @@
 using SV, Econometrics, LinearAlgebra, Statistics, DelimitedFiles
-
-function MCMC(verbosity=false)
+function MCMC(n; burnin=100, S=100, verbosity=false)
     #=
     # load the example data
     y = readdlm("svdata.txt")
@@ -12,9 +11,6 @@ function MCMC(verbosity=false)
     ρ = 0.9
     σu = 0.363
     θtrue = [σe, ρ, σu] # true param values, on param space
-    n = 1000 # sample size
-    burnin = 100
-    S = 100 # number of simulations
     # or generate some new data, if you prefer
     shocks_u = randn(n+burnin)
     shocks_e = randn(n+burnin)
@@ -33,7 +29,7 @@ function MCMC(verbosity=false)
     obj = θ -> -1.0*lnL(θ)
     Prior = θ -> prior(θ, lb, ub) # uniform, doesn't matter
     # use a rapid SAMIN to get good initialization values for chain
-    θinit, junk, junk, junk, junk = samin(obj, θinit, lb, ub; coverage_ok=1, maxevals=200, ns = 5, verbosity = 0, rt = 0.5)
+    θinit, junk, junk, junk = samin(obj, θinit, lb, ub; coverage_ok=1, maxevals=1000, ns = 5, verbosity = 3, rt = 0.25)
     # define things for MCMC
     burnin = 100
     ChainLength = 1000
@@ -47,7 +43,7 @@ function MCMC(verbosity=false)
     # now use a MVN random walk proposal 
     Σ = cov(chain[:,1:3])
     tuning = 1.0
-    MC_loops = 5
+    MC_loops = 2
     for j = 1:MC_loops
         P = (cholesky(Σ)).U
         Proposal = θ -> proposal2(θ,tuning*P, lb, ub)
@@ -63,9 +59,9 @@ function MCMC(verbosity=false)
         elseif accept < 0.25
             tuning *= 0.5
         end
-        # keep every 10th
+        # keep every 4th
         i = 1:size(chain,1)
-        keep = mod.(i,10.0).==0
+        keep = mod.(i,4.0).==0
         θinit = vec(mean(chain[:,1:3],dims=1))
         Σ = 0.8*Σ + 0.2*cov(chain[:,1:3])
     end
