@@ -2,7 +2,7 @@ include("MCMC.jl")
 include("DoFit.jl")
 include("func.jl")
 include("SVmodel.jl")
-function main()
+#function main()
 n = 500
 chain, Z = MCMC(n; verbosity=true)
 println("nonparametric fit results:")
@@ -16,5 +16,5 @@ println("true parameters:")
 σu = 0.363
 θtrue = [σe, ρ, σu] # true param values, on param space
 @show θtrue
-end
-main()
+#end
+#main()
