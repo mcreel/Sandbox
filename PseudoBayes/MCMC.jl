@@ -29,13 +29,13 @@ function MCMC(n; burnin=100, S=100, verbosity=false)
     obj = θ -> -1.0*lnL(θ)
     Prior = θ -> prior(θ, lb, ub) # uniform, doesn't matter
     # use a rapid SAMIN to get good initialization values for chain
-    θinit, junk, junk, junk = samin(obj, θinit, lb, ub; coverage_ok=1, maxevals=1000, ns = 5, verbosity = 3, rt = 0.25)
+    θinit, junk, junk, junk = samin(obj, θinit, lb, ub; coverage_ok=1, maxevals=1000, ns = 5, verbosity = 0, rt = 0.25)
     # define things for MCMC
     burnin = 100
     ChainLength = 1000
     # initial proposal moves one at a time
     Proposal = θ -> proposal1(θ, tuning, lb, ub)
-    chain = mcmc(θinit, ChainLength, burnin, Prior, lnL, Proposal, verbosity)
+    chain = mcmc(θinit, ChainLength, burnin, Prior, lnL, Proposal, false)
     # keep every 10th
     i = 1:size(chain,1)
     keep = mod.(i,10.0).==0
