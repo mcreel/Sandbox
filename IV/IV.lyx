@@ -1,0 +1,385 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass paper
+\use_default_options false
+\begin_modules
+theorems-ams-bytype
+theorems-ams-extended-bytype
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package none
+\inputencoding auto
+\fontencoding default
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command bibtex8
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 0
+\use_package cancel 0
+\use_package esint 1
+\use_package mathdots 0
+\use_package mathtools 0
+\use_package mhchem 0
+\use_package stackrel 0
+\use_package stmaryrd 0
+\use_package undertilde 0
+\cite_engine natbib
+\cite_engine_type authoryear
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Apparently Weak Instruments and a Solution
+\end_layout
+
+\begin_layout Author
+Michael Creel
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Universitat Autònoma de Barcelona, Barcelona GSE and MOVE.
+ Address: Dept.
+ of Economics and Economic History, Edifici B, Universitat Autònoma de Barcelona
+, Bellaterra (Barcelona), Spain, 08193.
+ email: michael.creel@uab.cat.
+ Code to replicate the examples and to use the methods for other models
+ is available at 
+\begin_inset CommandInset href
+LatexCommand href
+name "here"
+target "there"
+literal "false"
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Date
+XX-XX-2019
+\end_layout
+
+\begin_layout Abstract
+Do example.
+\begin_inset Newline newline
+\end_inset
+
+
+\series bold
+Keywords: 
+\series default
+aaa; bbb
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Consider the simple linear regression model with one endogenous regressor:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+y_{i} & =X_{i}^{\prime}\beta+\epsilon_{i}\\
+X_{i} & =\left[\begin{array}{c}
+x_{i}\\
+W_{i}
+\end{array}\right],
+\end{align*}
+
+\end_inset
+
+where 
+\begin_inset Formula $E(\epsilon_{i}|x_{i})\ne0$
+\end_inset
+
+ but 
+\begin_inset Formula $E(\epsilon_{i}|W_{i})=0.$
+\end_inset
+
+ Assume that additional instruments, 
+\begin_inset Formula $Q_{i}$
+\end_inset
+
+, are available, that also satisfy the exogeneity requirement: 
+\begin_inset Formula $E(\epsilon_{i}|Q_{i})=0.$
+\end_inset
+
+ Our starting point will be the well-known two stage least squares (2SLS)
+ estimator, 
+\begin_inset Formula $\tilde{\beta}$
+\end_inset
+
+, which is defined by: (i) first obtain 
+\begin_inset Formula $\widehat{X_{i}}$
+\end_inset
+
+ as the fitted values from a regression of 
+\begin_inset Formula $X_{i}$
+\end_inset
+
+ on 
+\begin_inset Formula $W_{i}$
+\end_inset
+
+, and then (ii) obtain 
+\begin_inset Formula $\tilde{\beta}$
+\end_inset
+
+ using an OLS regression of 
+\begin_inset Formula $y_{i}$
+\end_inset
+
+ on 
+\begin_inset Formula $\widehat{X_{i}}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+It is actually only necessary to regress the endogenous regressor on the
+ instruments in the first stage, as the included exogenous variables can
+ serve as their own instruments.
+ It this form the first stage regression is
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+x_{i}=Q_{i}\pi+W_{i}\tau+V_{i}.
+\]
+
+\end_inset
+
+The terminology 
+\begin_inset Quotes eld
+\end_inset
+
+weak instruments
+\begin_inset Quotes erd
+\end_inset
+
+ is used to describe poor performance of the IV estimator that can be due
+ to different causes.
+ A method for diagnosing weak instruments is to check that the 
+\begin_inset Formula $F$
+\end_inset
+
+ statistic for the hypothesis that 
+\begin_inset Formula $\pi$
+\end_inset
+
+ is equal to a vector of zeros is above a given threshold (
+\begin_inset CommandInset citation
+LatexCommand citet
+key "stock2005testing"
+literal "false"
+
+\end_inset
+
+).
+ The test may lead to a positive diagnosis for several reasons:
+\end_layout
+
+\begin_layout Itemize
+the excluded instruments are actually irrelevant, and the true value of
+ 
+\begin_inset Formula $\pi$
+\end_inset
+
+ is a vector of zeros.
+ The parameter vector 
+\begin_inset Formula $\beta$
+\end_inset
+
+ is not identified by the chosen instruments.
+\end_layout
+
+\begin_layout Itemize
+the excluded instruments are actually weak, because the true value of 
+\begin_inset Formula $\pi$
+\end_inset
+
+ is close to zero, relative to its asymptotic variance.
+ The excluded instruments can explain little of the variation in 
+\begin_inset Formula $x$
+\end_inset
+
+ that is not explained by the included instruments, even in large samples.
+ The asymptotic distribution of the IV estimator may be non-standard.
+\end_layout
+
+\begin_layout Itemize
+the 
+\emph on
+estimated
+\emph default
+ value of 
+\begin_inset Formula $\pi$
+\end_inset
+
+ is 
+\begin_inset Quotes eld
+\end_inset
+
+close
+\begin_inset Quotes erd
+\end_inset
+
+ to zero, or the estimated variance of of the estimator of 
+\begin_inset Formula $\pi$
+\end_inset
+
+ is large.
+ This may occur due to collinearity between 
+\begin_inset Formula $Q_{i}$
+\end_inset
+
+ and 
+\begin_inset Formula $W_{i},$
+\end_inset
+
+ and it can occur even if the true value of 
+\begin_inset Formula $\pi$
+\end_inset
+
+ is far from zero.
+ When 
+\begin_inset Formula $\pi$
+\end_inset
+
+ is is far enough from zero, the so-called concentration parameter (
+\begin_inset CommandInset citation
+LatexCommand citet
+key "rothenberg1984approximating"
+literal "false"
+
+\end_inset
+
+; 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "stock2005testing"
+literal "false"
+
+\end_inset
+
+) is large and grows with the sample size, and the asymptotic distribution
+ of the 2SLS is standard.
+ 
+\end_layout
+
+\begin_layout Standard
+We will refer to the last of these cases as one of 
+\begin_inset Quotes eld
+\end_inset
+
+apparently weak instruments
+\begin_inset Quotes erd
+\end_inset
+
+, because diagnostic methods may indicate that instruments are weak, even
+ though the 2SLS estimator may have satisfactory performance in large samples.
+ Even so, it may be highly variable in small samples, so, for a given sample,
+ 2SLS estimator may be of little use.
+ When weak instruments are detected, much of the literature has focused
+ on how to obtain reliable hypothesis tests, without seeking to improve
+ the small sample reliability of the estimator.
+ This paper seeks to distinguish more carefully if the problem of weak instrumen
+ts is real or apparent, and, in the latter case, to attack the problem of
+ small sample unreliability of the 2SLS estimator.
+ This will be done by applying collinearity-robust estimation methods in
+ the two stages.
+\end_layout
+
+\begin_layout Section
+Conclusion
+\end_layout
+
+\begin_layout Abstract
+\begin_inset CommandInset citation
+LatexCommand citet
+key "creel2011indirect"
+literal "true"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "econometrics"
+options "elsarticle-harv"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

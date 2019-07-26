@@ -1,3 +1,31 @@
+#= this shows the idea works, using a random 
+positive definite covariance matrix. There are
+two included exogs, and one excluded instrument.
+Typical output follows
+
+julia> include("Result0.jl")
+true betas are [0.0, 1.0, 1.0, 1.0]
+OLS results
+                    mean      median         std         min         max
+           1    -0.00146    -0.00024     0.04973    -0.30609     0.24845
+           2     1.95365     1.97317     0.17272     1.33107     2.27117
+           3     0.57820     0.59199     1.09740   -67.18752    26.19572
+           4     0.55333     0.58263     0.98871   -22.62338    37.99164
+IV results
+                    mean      median         std         min         max
+           1    -0.04644     0.00039     4.84244  -376.10085   187.00790
+           2     0.38548     1.07098    88.73264 -8350.85447  1413.31823
+           3     0.49940     0.96917    61.61567 -3925.93877  2497.19987
+           4     1.80703     0.95965    89.28773 -1433.84150  6501.36409
+IV Ridge results
+                    mean      median         std         min         max
+           1    -0.00132    -0.00012     0.10100    -0.77860     0.53225
+           2     1.03301     1.04669     0.35285    -0.71240     2.77336
+           3     0.97045     0.97353     0.29279    -0.73117     2.50478
+           4     0.96592     0.96344     0.29696    -1.08947     2.52411
+=#
+
+
 # this generates the covariance as a random
 # positive definite matrix. It shows that the
 # general idea offers an improvement, quite
@@ -41,7 +69,7 @@ for i = 1:reps
 
     # IV ridge
     #k = max(std(xhat))
-	k = 0.5
+	k = 2.0
     betaivR[i,:] = inv(xhat'xhat + k*eye(4))*xhat'y
 end
 
