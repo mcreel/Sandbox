@@ -1,0 +1,2 @@
+using Working.jl to find interesting results, then snapshot the code as ResultX.jl,
+with example output at top as a comment.
