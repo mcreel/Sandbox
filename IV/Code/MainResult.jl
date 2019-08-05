@@ -1,4 +1,7 @@
-
+#= 
+Generates a random covariance for x, w, e, with all variables
+having var=1. Fairly general random covariance, by .
+=#
 # this generates the covariance as a random
 # positive definite matrix. It shows that the
 # general idea offers an improvement, quite
@@ -8,13 +11,13 @@ function main()
 reps = 10000 # number of Monte Carlo reps.
 n = 100 # sample size
 dim = 6 # 1 endog regressor, dim-2 instruments/exog regressors, and last col is the error
-factors = 6 # 
+factors = 6 # same as dim, for now. Effects of reducing?
 included = 3 # number of included regressors (the first cols of generated vbls)
 truebeta = [0.0; ones(included)] # true betas (none for the error)
 betaols = zeros(reps,included+1)
 betaiv = zeros(reps,included+1)
 betaivR = zeros(reps,included+1)
-OtherInfo = zeros(reps,2) # 1st stage coefs, 1st stage F, and condition of OLS and Ridge regressors for second stage
+OtherInfo = zeros(reps,3) # 1st stage coefs, 1st stage F, and condition of OLS and Ridge regressors for second stage
 for i = 1:reps
     # generate a PD covariance matrix for [x W ϵ]
     # x is endogenous regressor, in first col
@@ -57,6 +60,9 @@ for i = 1:reps
     xhat = x
     xhat[:,2] = w*πhat
 	betaiv[i,:] = (xhat\y)'
+    P = diag(xhat*inv(xhat'xhat)*xhat')
+    P = P ./(1.0 .- P)
+    OtherInfo[i,3] = maximum(P)/minimum(P)
     # IV ridge
 	k = 0.5 # low values give very low bias, but higher variance
     betaivR[i,:] = inv(xhat'xhat + k*eye(size(xhat,2)))*xhat'y

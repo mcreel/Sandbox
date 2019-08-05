@@ -1,0 +1,14 @@
+Executing the gretl script MakeSecondStageForCol8.inp will write out
+the file SecondStage.txt, which contains the data for the second
+stage regression for 2SLS to replicate column 8 of Table V of AK1991.
+
+The first col is logWage, the second is the reduced form prediction of
+EDUC, and the remaining columns are the other regressors, which are
+RACE
+SMSA
+MARRIED
+AGEQ
+AGEQSQ
+8 regional dummies
+9 year dummies
+
