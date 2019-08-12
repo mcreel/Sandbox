@@ -136,19 +136,6 @@ aaa; bbb
 Introduction
 \end_layout
 
-\begin_layout Itemize
-Work out collinearity implications starting from asymptotic variance of
- 2SLS estimator? Start with the almost sure limit of 
-\begin_inset Formula $\left(\frac{\hat{X}^{\prime}\hat{X}}{n}\right)^{-1}$
-\end_inset
-
- and relate? 
-\end_layout
-
-\begin_layout Itemize
-Do a Monte Carlo using the Angrist-Krueger estimation results as the d.g.p.?
-\end_layout
-
 \begin_layout Standard
 Two stage least squares deals with the endogeneity of the regressor 
 \begin_inset Formula $x$
@@ -312,8 +299,15 @@ noprefix "false"
 
 \end_inset
 
-, but, nevertheless, it can help us to form intuition regarding the 2SLS
- estimator.
+, but, nevertheless, as pointed out by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "wooldridge2015introductory"
+literal "false"
+
+\end_inset
+
+ (Chapter 15), it can help us to form intuition regarding the 2SLS estimator.
 \end_layout
 
 \begin_layout Standard
@@ -490,6 +484,18 @@ Regularization of 2SLS and related estimators such as the limited information
 
 \begin_layout Section
 Conclusion
+\end_layout
+
+\begin_layout Section
+Revisiting Returns to Education
+\end_layout
+
+\begin_layout Subsection
+Angrist-Krueger 1991
+\end_layout
+
+\begin_layout Itemize
+focus on Table V (1930-39 cohort), columns 7 and 8, because this is 
 \end_layout
 
 \begin_layout Abstract

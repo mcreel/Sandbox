@@ -1,7 +1,6 @@
 # Angrist and Krueger paper
 open AKextract.dta
 list REGION = 11 12 13 14 15 16 17 18
-
 # We want to obtain the 2SLS second stage regression variables
 # to replicate column (8) of AK, Table V
 
@@ -11,10 +10,7 @@ list REGION = 11 12 13 14 15 16 17 18
 #tsls LWKLYWGE const EDUC YB_* RACE SMSA MARRIED REGION AGEQ AGEQSQ ; \
 #  const YB_* RACE SMSA MARRIED REGION AGEQ AGEQSQ Y*Q* --robust
 
-# Here's the first stage regression behind col (8)
-ols EDUC YB_* RACE SMSA MARRIED REGION AGEQ AGEQSQ Y*Q* --robust
-series EDUCHAT = $yhat
-store SecondStage.csv --csv LWKLYWGE EDUCHAT RACE SMSA MARRIED AGEQ AGEQSQ REGION YB_*
+store AKdata.csv --csv LWKLYWGE EDUC RACE SMSA MARRIED AGEQ AGEQSQ REGION YB_* Y*Q*
 
 
 

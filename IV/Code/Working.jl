@@ -64,8 +64,9 @@ for i = 1:reps
     P = P ./(1.0 .- P)
     OtherInfo[i,3] = maximum(P)/minimum(P)
     # IV ridge
-	k = 0.5 # low values give very low bias, but higher variance
-    βivR[i,:] = inv(xhat'xhat + k*eye(size(xhat,2)))*xhat'y
+	k = 0.2 # low values give very low bias, but higher variance
+    βivR[i,:] = ridge(y, xhat, k)
+    #βivR[i,:] = inv(xhat'xhat + k*eye(size(xhat,2)))*xhat'y
 end
 p1 = npdensity(βiv[:,2])
 plot!(p1,title="IV")
