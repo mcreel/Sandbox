@@ -7,15 +7,14 @@ like to use, subject to  X-1 being an even divisor
 of 1e6, e.g., set X=5.
 =#
 
-using LinearAlgebra, Statistics, DelimitedFiles
+using SV, MPI, Econometrics, LinearAlgebra, Statistics, DelimitedFiles
 
-include("montecarlo.jl")
 include("mc_rep.jl")
 
 # this function reports intermediate results during MC runs
 function monitor(sofar, results)
-    # Examine results every 12.5*10^5 draws
-    if mod(sofar, 20) == 0
+    # Examine results every X draws
+    if mod(sofar, 10) == 0
         dstats(results[1:sofar,:])
         writedlm("results.txt", results[1:sofar,:])
     end

@@ -6,6 +6,7 @@ function MCMC(n; burnin=100, S=100, verbosity=false)
     y = y[:]
     m =  sqrt(n)*aux_stat(y) # generate the sample and save the data
     =#
+    verbosity = false
     # these are the true params
     σe = exp(-0.736/2.0)
     ρ = 0.9
@@ -32,13 +33,13 @@ function MCMC(n; burnin=100, S=100, verbosity=false)
     θinit, junk, junk, junk = samin(obj, θinit, lb, ub; coverage_ok=1, maxevals=1000, ns = 5, verbosity = 0, rt = 0.25)
     # define things for MCMC
     burnin = 100
-    ChainLength = 1000
+    ChainLength = 4000
     # initial proposal moves one at a time
     Proposal = θ -> proposal1(θ, tuning, lb, ub)
-    chain = mcmc(θinit, ChainLength, burnin, Prior, lnL, Proposal, false)
-    # keep every 10th
+    chain = mcmc(θinit, ChainLength, burnin, Prior, lnL, Proposal, verbosity)
+    # keep every 4th
     i = 1:size(chain,1)
-    keep = mod.(i,10.0).==0
+    keep = mod.(i,4.0).==0
     chain = chain[keep,:]
     # now use a MVN random walk proposal 
     Σ = cov(chain[:,1:3])
@@ -49,7 +50,7 @@ function MCMC(n; burnin=100, S=100, verbosity=false)
         Proposal = θ -> proposal2(θ,tuning*P, lb, ub)
         θinit = vec(mean(chain[:,1:3],dims=1))
         if j == MC_loops
-            ChainLength = 5000
+            ChainLength = 4000
         end    
         chain = mcmc(θinit, ChainLength, 0, Prior, lnL, Proposal, verbosity)
         accept = mean(chain[:,end])
@@ -62,7 +63,7 @@ function MCMC(n; burnin=100, S=100, verbosity=false)
         # keep every 4th
         i = 1:size(chain,1)
         keep = mod.(i,4.0).==0
-        θinit = vec(mean(chain[:,1:3],dims=1))
+        chain = chain[keep,:]
         Σ = 0.8*Σ + 0.2*cov(chain[:,1:3])
     end
     return chain, m
