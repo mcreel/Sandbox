@@ -1,8 +1,8 @@
 # these are the true params
-σe = exp(-0.736/2.0)
+α = -7.36
 ρ = 0.9
-σu = 0.363
-θtrue = [σe, ρ, σu] # true param values, on param space
+σ = 0.363
+θtrue = [α, ρ, σ] # true param values, on param space
 
 # plain MCMC fit
 posmean = vec(mean(chain[:,1:3],dims=1))
