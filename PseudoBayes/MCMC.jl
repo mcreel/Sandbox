@@ -10,7 +10,7 @@ function MCMC(n, θtrue; burnin=100, S=100, verbosity=false)
     # or generate some new data, if you prefer
     shocks_u = randn(n+burnin)
     shocks_e = randn(n+burnin)
-    y = SVmodel(θtrue, n, shocks_u, shocks_e, false)
+    y, junk = SVmodel(θtrue, n, shocks_u, shocks_e, false)
     m = sqrt(n)*aux_stat(y)
     # set up MCMC
     # use antithetic random draws (negatively correlated)
@@ -20,7 +20,7 @@ function MCMC(n, θtrue; burnin=100, S=100, verbosity=false)
     shocks_e = [shocks_e; -1.0*shocks_e]
     tuning = [0.01, 0.01, 0.01] # fix this somehow
     lb = [0.0, 0.0, 0.0]
-    ub = [2.0, 0.99, 2.0]
+    ub = [2.0, 0.99, 1.0]
     # start value is intelligent for α, prior mean for ρ and σ
     θinit = (ub+lb)./2.0
     αinit = sqrt(mean(y.^2.0))
