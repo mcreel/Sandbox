@@ -241,7 +241,7 @@ version = "0.21.8"
 
 [[Econometrics]]
 deps = ["CSV", "Calculus", "DataFrames", "DataFramesMeta", "Distances", "Distributions", "GR", "KernelDensity", "LinearAlgebra", "MPI", "NLopt", "Optim", "Plots", "Printf", "Random", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns", "StatsModels", "StatsPlots", "Test"]
-git-tree-sha1 = "89902519c99bd783e80e1ffba2f25ead2b6c641a"
+git-tree-sha1 = "1d7415430a2c7be18c7f757d9a532dd11aa0b613"
 repo-rev = "master"
 repo-url = "https://github.com/mcreel/Econometrics.git"
 uuid = "4d6a76a9-bfbc-5492-8924-cf6ed7875f06"
@@ -587,7 +587,7 @@ uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 
 [[SV]]
 deps = ["Econometrics", "LinearAlgebra", "Random", "Statistics"]
-git-tree-sha1 = "d517b85d3d880fcad13e081da23ae315df1e91d9"
+git-tree-sha1 = "3f8ee592beb4bb40602aa2a7bcc7b8350cba01a0"
 repo-rev = "master"
 repo-url = "https://github.com/mcreel/SV.git"
 uuid = "94d20700-6971-50d8-a711-55e16dc6ede1"

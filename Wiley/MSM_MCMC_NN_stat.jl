@@ -5,12 +5,11 @@ using BSON:@load
 include("Transform.jl")
 
 # specialized likelihood for MCMC using net
-function logL_NN(θ, m, n, η, ϵ, model, withdet=true)
-    S = size(η,2)
+function logL_NN(θ, m, n, burnin, S, model, withdet=true)
     k = size(m,1)
     ms = zeros(S, k)
     Threads.@threads for s = 1:S
-        y, junk = SVmodel(θ, n, η[:,s], ϵ[:,s])
+        y, junk = SVmodel(θ, n, burnin)
         stat = sqrt(n)*aux_stat(y)
         # the following two lines apply the net to the raw stat
         transform!(stat)
@@ -51,13 +50,10 @@ function main()
     # get the data from the MC design, with the NN dataprep
     m = statistics[nDrawsFromPrior+1,:]
     m = Float64.(model(m).data)
-    @show m
     # set up MCMC
-    shocks_u = randn(n+burnin,S) # fixed shocks for simulations
-    shocks_e = randn(n+burnin,S) # fixed shocks for simulations
     tuning = [0.01, 0.01, 0.01] # fix this somehow
     θinit = m # use the NN fit as initial θ
-    lnL = θ -> logL_NN(θ, m, n, shocks_u, shocks_e, model)
+    lnL = θ -> logL_NN(θ, m, n, S, burnin, model)
     lb = [0.0, 0.0, 0.0]
     ub = [2.0, 0.99, 1.0]
     Prior = θ -> prior(θ, lb, ub) # uniform, doesn't matter
@@ -86,7 +82,7 @@ function main()
             elseif accept < 0.25
                 tuning *= 0.25
             end
-            Σ = 0.8*Σ + 0.2*NeweyWest(chain[:,1:3])
+            Σ = 0.5*Σ + 0.5*NeweyWest(chain[:,1:3])
         end    
     end
     # plain MCMC fit

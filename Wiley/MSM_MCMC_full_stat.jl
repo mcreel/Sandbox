@@ -24,7 +24,7 @@ function main()
     lnL = θ -> logL(θ, m, n, shocks_u, shocks_e, true)
     Prior = θ -> prior(θ, lb, ub) # uniform, doesn't matter
     # define things for MCMC
-    verbosity = true
+    verbosity = false
     # initial fast chain to tune covariance
     ChainLength = 800
     Proposal = θ -> proposal1(θ, tuning, lb, ub)
@@ -50,7 +50,7 @@ function main()
             elseif accept < 0.25
                 tuning *= 0.25
             end
-            Σ = 0.2*Σ + 0.8*NeweyWest(chain[:,1:3])
+            Σ = 0.5*Σ + 0.5*NeweyWest(chain[:,1:3])
         end    
     end
     # plain MCMC fit

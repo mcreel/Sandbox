@@ -7,9 +7,9 @@ Pkg.activate(".")
 #include("Train.jl")
 
 # do full statistic MSM Bayesian estimation
-#include("MSM_MCMC_full_stat.jl");
+#@time include("MSM_MCMC_full_stat.jl");
 #
 # do NN statistic MSM Bayesian estimation
-include("MSM_MCMC_NN_stat.jl");
+@time include("MSM_MCMC_NN_stat.jl");
 
 
