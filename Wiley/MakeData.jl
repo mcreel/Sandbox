@@ -1,7 +1,9 @@
 using Pkg
 Pkg.activate(".")
 using SV, Econometrics, StatsBase
+using BSON: @load
 using BSON: @save
+include("Transform.jl")    
 
 function MakeData()
     n = 1000
@@ -36,18 +38,13 @@ function MakeData()
         end
         datadesign[s,:] = vcat(θtrue, m)
     end
-    #=
-    ## normalize around median, and divide by abs val of median
-    d = [data; datadesign]
-    BoundByQuantiles!(d[:,4:end])
-    for i = 4:size(d,2)
-        q50 = quantile(d[:,i],0.5)
-        d[:,i] = (d[:,i] .- q50) ./ abs(q50)
-    end
-    datadesign = d[S+1:end,:]
-    data = d[1:S,:]
-    =#
-    @save "data.bson" data datadesign
+    # save needed items with standard format
+    params = [data; datadesign][:,1:3]
+    statistics = [data; datadesign][:,4:end]
+    create_transformation(statistics)
+    transform!(statistics)
+    nDrawsFromPrior = S
+    @save "simdata.bson" params statistics nDrawsFromPrior
     return nothing
 end
 MakeData()

@@ -1,45 +1,20 @@
-# the net has been trained using outputs mapped to R3.
-# So, the MCMC chain should work its way through R3, not the
-# parameter space. When simulating data, the trial value of the MCMC chain
-# has to be mapped back to parameter space, to feed into SVmodel.
-# the prior should just be set to 1 (flat) with no bounds enforcement
-#
+# This does MCMC, but filtering the statistics through the trained net,
+# to reduce dimension to the minimum needed for identification
 using SV, Flux, Econometrics, LinearAlgebra, Statistics
 using BSON:@load
-
-# specialized stat passing raw stat though net
-function aux_stat_NN(y, model)
-    α = sqrt(mean(y.^2.0))
-    y = abs.(y)
-    m = mean(y)
-    s = std(y)
-    k = std(y.^2.0)
-    # look for evidence of volatility clusters, for ρ
-    mm = ma(y,5)
-    mm = mm[5:end]
-    clusters1 = quantile(mm,0.75)-quantile(mm, 0.25)
-    mm = ma(y,10)
-    mm = mm[10:end]
-    clusters2 = quantile(mm,0.75)-quantile(mm, 0.25)
-    # HAR model, for all params
-    a = (Float64.(model(vcat(α, m, s, k, clusters1, clusters2, HAR(y))).data))
-end
+include("Transform.jl")
 
 # specialized likelihood for MCMC using net
 function logL_NN(θ, m, n, η, ϵ, model, withdet=true)
-    lb = [0.0, 0.0, 0.0]
-    ub = [2.0, 0.99, 1.0]
-    θ = max.(θ, lb)
-    θ = min.(θ,ub)
     S = size(η,2)
     k = size(m,1)
     ms = zeros(S, k)
     Threads.@threads for s = 1:S
-        #y, junk = SVmodel(θ, n, η[:,s], ϵ[:,s])
-        y, junk = SVmodel(θ, n, 100)
-        y = min.(y, 100.0)
-        y = max.(y,-100.0)
-        ms[s,:] = sqrt(n)*aux_stat_NN(y, model)
+        y, junk = SVmodel(θ, n, η[:,s], ϵ[:,s])
+        stat = sqrt(n)*aux_stat(y)
+        # the following two lines apply the net to the raw stat
+        transform!(stat)
+        ms[s,:] = Float64.(model(stat).data)
     end
     mbar = mean(ms,dims=1)[:]
     if ~any(isnan.(mbar))
@@ -64,7 +39,7 @@ function main()
     # get the trained net
     @load "best.bson" model
     # get the MC design inputs
-    @load "data.bson" datadesign
+    @load "simdata.bson" statistics nDrawsFromPrior
     # these are the true params that generated the data
     σe = exp(-0.736/2.0)
     ρ = 0.9
@@ -74,8 +49,9 @@ function main()
     burnin = 100
     S = 100 # number of simulations
     # get the data from the MC design, with the NN dataprep
-    m = datadesign[3,4:end]
-    m = (Float64.(model(m).data))
+    m = statistics[nDrawsFromPrior+1,:]
+    m = Float64.(model(m).data)
+    @show m
     # set up MCMC
     shocks_u = randn(n+burnin,S) # fixed shocks for simulations
     shocks_e = randn(n+burnin,S) # fixed shocks for simulations
@@ -99,7 +75,6 @@ function main()
     for j = 1:MC_loops
         P = (cholesky(Σ)).U
         Proposal = θ -> proposal2(θ,tuning*P, lb, ub)
-        θinit = m
         if j == MC_loops
             ChainLength = 1600
         end    

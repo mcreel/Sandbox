@@ -1,4 +1,0 @@
-The stat has to be transformed according to the net. If MakeData uses scaling, then it has
-to be preserved somehow.
-
-Or, drop scaling and define a special version of aux_stat

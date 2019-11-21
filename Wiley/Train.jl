@@ -25,17 +25,16 @@ end
 #-------------------- end define iterator ---------------------
 
 function main()
-    @load "data.bson" data datadesign
+    @load "simdata.bson" params statistics nDrawsFromPrior
     whichdep = 1:3
-    S = size(data,1)
+    S = nDrawsFromPrior
     trainsize = Int(0.5*S)
-    yin = data[1:trainsize, whichdep]'
-    yout = data[trainsize+1:end, whichdep]'
-    x = data[:,4:end]
-    xin = x[1:trainsize, :]'
-    xout = x[trainsize+1:end, :]'
-    ydesign = datadesign[:, whichdep]'
-    xdesign = (datadesign[:, 4:end])'
+    yin = params[1:trainsize, whichdep]'
+    yout = params[trainsize+1:end, whichdep]'
+    xin = statistics[1:trainsize, :]'
+    xout = statistics[trainsize+1:end, :]'
+    ydesign = params[S+1:end, whichdep]'
+    xdesign = (statistics[S+1:end, :])'
     # model
     model = Chain(
         Dense(size(xin,1),100, tanh),

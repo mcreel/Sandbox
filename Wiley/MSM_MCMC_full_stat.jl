@@ -12,8 +12,8 @@ function main()
     # generate data
     #m = sqrt(n)*aux_stat(SVmodel([σe, ρ, σu], n, burnin)[1])
     # use the pre-generated Monte Carlor design draws, to compare to other methods
-    @load "data.bson" datadesign
-    m = datadesign[1,4:end]
+    @load "simdata.bson" statistics nDrawsFromPrior
+    m = statistics[nDrawsFromPrior+1,:]
     # set up MCMC
     shocks_u = randn(n+burnin,S) # fixed shocks for simulations
     shocks_e = randn(n+burnin,S) # fixed shocks for simulations
