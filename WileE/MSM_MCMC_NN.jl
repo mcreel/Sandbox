@@ -13,6 +13,10 @@ function logL_NN(θ, m, n, burnin, S, model, withdet=true)
         ms[s,:] = Float64.(model(transform(WileE_model(θ[:])', info)').data)
     end
     mbar = mean(ms,dims=1)[:]
+    Σ = cov(ms)
+    x = (m .- mbar)[:]
+    lnL = -0.5*log(det(Σ)) - 0.5*x'*inv(Σ)*x # for Bayesian
+    #=
     if ~any(isnan.(mbar))
         Σ = cov(ms)
         x = (m .- mbar)[:]
@@ -28,15 +32,14 @@ function logL_NN(θ, m, n, burnin, S, model, withdet=true)
      else
          lnL = -Inf
      end
+     =#
      return lnL
 end
 
-function main()
+function MSM_MCMC_NN(m)
     # get the trained net
     @load "best.bson" model
     S = nSimulationDraws # number of simulations
-    # draw a NN transformed stat, at the true parameters
-    m = WileE_model(θtrue)
     m = transform(m', info)
     m = model(m').data
     m = Float64.(m)
@@ -77,12 +80,13 @@ function main()
     chain = chain[:,1:3]
     posmean = vec(mean(chain,dims=1))
     inci = zeros(3)
+    lower = zeros(3)
+    upper = zeros(3)
     for i = 1:3
-        lower = quantile(chain[:,i],0.05)
-        upper = quantile(chain[:,i],0.95)
-        inci[i] = θtrue[i] >= lower && θtrue[i] <= upper
+        lower[i] = quantile(chain[:,i],0.05)
+        upper[i] = quantile(chain[:,i],0.95)
+        inci[i] = θtrue[i] >= lower[i] && θtrue[i] <= upper[i]
     end
-    prettyprint([posmean inci])
+    prettyprint([posmean lower upper inci])
     return chain
 end
-main();

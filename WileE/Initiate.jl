@@ -1,5 +1,6 @@
 using Pkg
 Pkg.activate(".")
+using SV
 
 # the following defines a function that returns a draw of the statistic, given the parameter
 global const WileE_model = θ -> sqrt(n)*aux_stat(SVmodel(θ::Array{Float64,1}, n::Int64, burnin::Int64)[1])

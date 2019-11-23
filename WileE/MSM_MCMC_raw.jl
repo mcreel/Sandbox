@@ -1,10 +1,8 @@
 using SV, Flux, Econometrics, LinearAlgebra, Statistics
 using BSON:@load
-function main()
+function MSM_MCMC_raw(m)
     # these are the true params that generated the data
     S = nSimulationDraws # number of simulations
-    # generate statistic at the true param value
-    m = WileE_model(θtrue)
     # set up MCMC
     shocks_u = randn(n+burnin,S) # fixed shocks for simulations
     shocks_e = randn(n+burnin,S) # fixed shocks for simulations
@@ -46,12 +44,13 @@ function main()
     chain = chain[:,1:3]
     posmean = vec(mean(chain,dims=1))
     inci = zeros(3)
+    lower = zeros(3)
+    upper = zeros(3)
     for i = 1:3
-        lower = quantile(chain[:,i],0.05)
-        upper = quantile(chain[:,i],0.95)
-        inci[i] = θtrue[i] >= lower && θtrue[i] <= upper
+        lower[i] = quantile(chain[:,i],0.05)
+        upper[i] = quantile(chain[:,i],0.95)
+        inci[i] = θtrue[i] >= lower[i] && θtrue[i] <= upper[i]
     end
-    prettyprint([posmean inci])
+    prettyprint([posmean lower upper inci])
     return chain
 end
-main();

@@ -1,5 +1,9 @@
 function RunProject()
 
+# generate a draw at true params
+m = WileE_model(θtrue)    
+@show m
+
 # generate the raw training data
 #include("MakeData.jl")
 
@@ -12,10 +16,12 @@ function RunProject()
 # when this is done, can delete cooked_data.bson
 
 # do full statistic MSM Bayesian estimation
-#@time include("MSM_MCMC_full_stat.jl");
-#
+include("MSM_MCMC_raw.jl")
+@time MSM_MCMC_raw(m)
+
 # do NN statistic MSM Bayesian estimation
-@time include("MSM_MCMC_NN_stat.jl");
+include("MSM_MCMC_NN.jl")
+@time MSM_MCMC_NN(m)
 
 end
 RunProject()
