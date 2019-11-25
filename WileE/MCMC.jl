@@ -6,7 +6,7 @@ include("lib/transform.jl")
 include("lib/lnL.jl")
 global const info = readdlm("transformation_info")
 
-function MSM_MCMC(m, usenn)
+function MCMC(m, usenn)
     # get the trained net
     @load "best.bson" model
     S = nSimulationDraws # number of simulations
@@ -20,7 +20,7 @@ function MSM_MCMC(m, usenn)
     if usenn
         θinit = m # use the NN fit as initial θ
         lnL = θ -> LL(θ, m, S, model)
-    else
+    else          # use the prior mean as initial θ 
         θinit = (ub+lb)/2.0
         lnL = θ -> LL(θ, m, S)
     end
@@ -33,10 +33,10 @@ function MSM_MCMC(m, usenn)
     # now use a MVN random walk proposal with updates of covariance and longer chain
     # on final loop
     θinit = mean(chain[:,1:3],dims=1)[:]
-    Σ = NeweyWest(chain[:,1:3])
+    Σ = cov(chain[:,1:3])
     tuning = 1.0
     ChainLength = 800
-    MC_loops = 5
+    MC_loops = 2
     for j = 1:MC_loops
         P = (cholesky(Σ)).U
         Proposal = θ -> proposal2(θ,tuning*P, lb, ub)
@@ -52,7 +52,7 @@ function MSM_MCMC(m, usenn)
             elseif accept < 0.25
                 tuning *= 0.25
             end
-            Σ = 0.5*Σ + 0.5*NeweyWest(chain[:,1:3])
+            Σ = cov(chain[:,1:3])
         end    
     end
     # plain MCMC fit

@@ -5,14 +5,15 @@ include("Analyze.jl")
 function RunProject()
 
 # generate the raw training data
-#include("MakeData.jl")
+include("MakeData.jl")
 
 # transform the raw statistics, and split out params and stats
-#include("Transform.jl")
+include("Transform.jl")
 ## when this is done, can delete raw_data.bson
 
 # train the net using the transformed training/testing data
-#include("Train.jl")
+include("Train.jl")
+
 # when this is done, can delete cooked_data.bson
 include("MCMC.jl")
 
@@ -27,7 +28,7 @@ for mcrep = 1:mcreps
     results_raw[mcrep,:] = Analyze(chain)
 
     # do NN statistic MSM Bayesian estimation
-    chain = MSM_MCMC(m, true)
+    chain = MCMC(m, true)
     results_NN[mcrep,:] = Analyze(chain)
     println("____________________________")
     println("Results so far, raw stat")

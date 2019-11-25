@@ -15,7 +15,7 @@ global const ub = [2.0, 0.99, 1.0]
 global const nParams = 3
 
 # controls of raw draws from prior, for training net
-global const TrainingTestingSize = Int64(1e5)
+global const TrainingTestingSize = Int64(1e4)
 global const TrainingProportion = 0.5
 global const LayerConfig = 3
 global const BatchProportion = 0.05
