@@ -1,5 +1,3 @@
-# run Initiate (only one time!) before this. If this give a world age
-# error message, just run it again.
 include("MakeData.jl")
 include("Transform.jl")
 include("Train.jl")
@@ -29,11 +27,10 @@ for mcrep = 1:mcreps
     # do full statistic MSM Bayesian estimation
     chain = MCMC(m, false)
     results_raw[mcrep,:] = Analyze(chain)
-
     # do NN statistic MSM Bayesian estimation
     chain = MCMC(m, true)
     results_NN[mcrep,:] = Analyze(chain)
-    println("____________________________")
+    println("__________ replication: ", mcrep, "_______________")
     println("Results so far, raw stat")
     dstats(results_raw[1:mcrep,:])
     println("Results so far, NN stat")
