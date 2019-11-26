@@ -5,7 +5,7 @@ using BSON: @save
 include("lib/transform.jl")
 include("lib/create_transformation.jl")
 
-function main()
+function Transform()
     @load "raw_data.bson" data
     params = data[:,1:nParams]
     statistics = data[:,nParams+1:end]
@@ -13,4 +13,3 @@ function main()
     statistics = transform(statistics, info)
     @save "cooked_data.bson" params statistics
 end    
-main()

@@ -19,4 +19,3 @@ function MakeData()
     @save "raw_data.bson" data
     return nothing
 end
-MakeData()

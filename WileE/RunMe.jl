@@ -1,21 +1,24 @@
 # run Initiate (only one time!) before this. If this give a world age
 # error message, just run it again.
+include("MakeData.jl")
+include("Transform.jl")
+include("Train.jl")
 include("Analyze.jl")
+include("MCMC.jl")
 
 function RunProject()
 
 # generate the raw training data
-include("MakeData.jl")
+#MakeData()
 
 # transform the raw statistics, and split out params and stats
-include("Transform.jl")
+#Transform()
 ## when this is done, can delete raw_data.bson
 
 # train the net using the transformed training/testing data
-include("Train.jl")
-
+#Train()
 # when this is done, can delete cooked_data.bson
-include("MCMC.jl")
+
 
 mcreps = 1000
 results_raw = zeros(mcreps,12)

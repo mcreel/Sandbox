@@ -4,7 +4,7 @@ using BSON: @save
 
 include("lib/define_iterator.jl")
 
-function main()
+function Train()
     @load "cooked_data.bson" params statistics
     S = TrainingTestingSize # number of draws from prior
     trainsize = Int(TrainingProportion*S)
@@ -57,4 +57,3 @@ function main()
     end
     return nothing
 end 
-main();
