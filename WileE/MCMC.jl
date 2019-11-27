@@ -33,12 +33,16 @@ function MCMC(m, usenn)
     # now use a MVN random walk proposal with updates of covariance and longer chain
     # on final loop
     θinit = mean(chain[:,1:3],dims=1)[:]
-    Σ = cov(chain[:,1:3])
+    Σ = NeweyWest(chain[:,1:3])
     tuning = 1.0
     ChainLength = 800
     MC_loops = 2
     for j = 1:MC_loops
-        P = (cholesky(Σ)).U
+        P = try
+            P = (cholesky(Σ)).U
+        catch
+            P = diagm(diag(Σ))
+        end    
         Proposal = θ -> proposal2(θ,tuning*P, lb, ub)
         if j == MC_loops
             ChainLength = 1600
@@ -52,7 +56,7 @@ function MCMC(m, usenn)
             elseif accept < 0.25
                 tuning *= 0.25
             end
-            Σ = cov(chain[:,1:3])
+            Σ = NeweyWest(chain[:,1:3])
         end    
     end
     # plain MCMC fit
