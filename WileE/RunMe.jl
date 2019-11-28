@@ -7,18 +7,18 @@ include("MCMC.jl")
 function RunProject()
 
 # generate the raw training data
-#MakeData()
+MakeData()
 
 # transform the raw statistics, and split out params and stats
-#Transform()
+Transform()
 ## when this is done, can delete raw_data.bson
 
 # train the net using the transformed training/testing data
-#Train()
+Train()
 # when this is done, can delete cooked_data.bson
 
 
-mcreps = 1000
+mcreps = 100
 results_raw = zeros(mcreps,12)
 results_NN = zeros(mcreps,12)
 for mcrep = 1:mcreps

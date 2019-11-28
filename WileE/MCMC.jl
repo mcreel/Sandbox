@@ -21,8 +21,11 @@ function MCMC(m, usenn)
         θinit = m # use the NN fit as initial θ
         lnL = θ -> LL(θ, m, S, model)
     else          # use the prior mean as initial θ 
-        θinit = (ub+lb)/2.0
+        # use a rapid SAMIN to get good initialization values for chain
+        θinit = (ub+lb)./2.0
         lnL = θ -> LL(θ, m, S)
+        obj = θ -> -1.0*lnL(θ)
+        θinit, junk, junk, junk = samin(obj, θinit, lb, ub; coverage_ok=1, maxevals=1000, ns = 10, verbosity = 0, rt = 0.25)
     end
     Prior = θ -> prior(θ, lb, ub) # uniform, doesn't matter
     # define things for MCMC
@@ -36,7 +39,7 @@ function MCMC(m, usenn)
     Σ = NeweyWest(chain[:,1:3])
     tuning = 1.0
     ChainLength = 800
-    MC_loops = 2
+    MC_loops = 3
     for j = 1:MC_loops
         P = try
             P = (cholesky(Σ)).U
@@ -45,7 +48,7 @@ function MCMC(m, usenn)
         end    
         Proposal = θ -> proposal2(θ,tuning*P, lb, ub)
         if j == MC_loops
-            ChainLength = 1600
+            ChainLength = 2000
         end    
         θinit = mean(chain[:,1:3],dims=1)[:]
         chain = mcmc(θinit, ChainLength, 0, Prior, lnL, Proposal, verbosity)
