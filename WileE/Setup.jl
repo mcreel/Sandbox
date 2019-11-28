@@ -19,7 +19,7 @@ global const TrainingTestingSize = Int64(1e5) # set fairly large, to limit monte
 global const TrainingProportion = 0.5
 global const TrainingIters = 1000 # again, large to limit monte carlo error
 global const LayerConfig = 3
-global const BatchProportion = 0.05
+global const BatchProportion = 0.01
 
 # controls of the MSM simulations
 global const nSimulationDraws = 100

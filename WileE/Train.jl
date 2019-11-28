@@ -21,7 +21,7 @@ function Train()
     )
     θ = Flux.params(model)
     opt = AdaMax()
-    loss(x,y) = Flux.mse(model(x),y) #+ 0.001*L2penalty(θ)
+    loss(x,y) = Flux.mse(model(x),y)
     function monitor(e)
         println("epoch $(lpad(e, 4)): (training) loss = $(round(loss(xin,yin).data; digits=4)) (testing) loss = $(round(loss(xout,yout).data; digits=4))| ")
     end
