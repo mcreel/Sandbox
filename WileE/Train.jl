@@ -28,7 +28,7 @@ function Train()
     bestsofar = 1.0e10
     pred = 0.0 # define is here to have it outside the for loop
     inbatch = 0
-    for i = 1:500
+    for i = 1:TrainingIters
         inbatch = rand(size(xin,2)) .< BatchProportion
         batch = DataIterator(xin[:,inbatch],yin[:,inbatch])
         Flux.train!(loss, θ, batch, opt)

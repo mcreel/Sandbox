@@ -30,7 +30,7 @@ function MCMC(m, usenn)
     Prior = θ -> prior(θ, lb, ub) # uniform, doesn't matter
     # define things for MCMC
     verbosity = false
-    ChainLength = 800
+    ChainLength = 500
     Proposal = θ -> proposal1(θ, tuning, lb, ub)
     chain = mcmc(θinit, ChainLength, burnin, Prior, lnL, Proposal, verbosity)
     # now use a MVN random walk proposal with updates of covariance and longer chain
@@ -38,8 +38,8 @@ function MCMC(m, usenn)
     θinit = mean(chain[:,1:3],dims=1)[:]
     Σ = NeweyWest(chain[:,1:3])
     tuning = 1.0
-    ChainLength = 800
-    MC_loops = 3
+    ChainLength = 500
+    MC_loops = 4
     for j = 1:MC_loops
         P = try
             P = (cholesky(Σ)).U
