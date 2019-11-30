@@ -23,7 +23,7 @@ function Train()
     opt = AdaMax()
     loss(x,y) = Flux.mse(model(x),y)
     function monitor(e)
-        println("epoch $(lpad(e, 4)): (training) loss = $(round(loss(xin,yin).data; digits=4)) (testing) loss = $(round(loss(xout,yout).data; digits=4))| ")
+        println("epoch $(lpad(e, 4)): (training) loss = $(round(loss(xin,yin); digits=4)) (testing) loss = $(round(loss(xout,yout); digits=4))| ")
     end
     bestsofar = 1.0e10
     pred = 0.0 # define is here to have it outside the for loop
@@ -32,7 +32,7 @@ function Train()
         inbatch = rand(size(xin,2)) .< BatchProportion
         batch = DataIterator(xin[:,inbatch],yin[:,inbatch])
         Flux.train!(loss, θ, batch, opt)
-        current = loss(xout,yout).data
+        current = loss(xout,yout)
         if current < bestsofar
             bestsofar = current
             @save "best.bson" model
@@ -40,7 +40,7 @@ function Train()
             yy = yout
             println("________________________________________________________________________________________________")
             monitor(i)
-            pred = model(xx).data # map pred to param space
+            pred = model(xx) # map pred to param space
             error = yy .- pred
             results = [pred;error]
             rmse = sqrt.(mean(error.^2.0,dims=2))
