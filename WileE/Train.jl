@@ -6,6 +6,8 @@ include("lib/define_iterator.jl")
 
 function Train()
     @load "cooked_data.bson" params statistics
+    params = Float32.(params)
+    statistics = Float32.(statistics)
     S = TrainingTestingSize # number of draws from prior
     trainsize = Int(TrainingProportion*S)
     yin = params[1:trainsize, :]'
@@ -43,7 +45,7 @@ function Train()
             pred = model(xx) # map pred to param space
             error = yy .- pred
             results = [pred;error]
-            rmse = sqrt.(mean(error.^2.0,dims=2))
+            rmse = sqrt.(mean(error.^Float32(2.0),dims=2))
             println(" ")
             println("RMSE for model parameters ")
             prettyprint(reshape(round.(rmse,digits=3),1,3))

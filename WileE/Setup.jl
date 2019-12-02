@@ -15,11 +15,11 @@ global const ub = [2.0, 0.99, 1.0]
 global const nParams = 3
 
 # controls of raw draws from prior, for training net
-global const TrainingTestingSize = Int64(1e5) # set fairly large, to limit monte carlo error
+global const TrainingTestingSize = Int64(5e4) # set fairly large, to limit monte carlo error
 global const TrainingProportion = 0.5
-global const TrainingIters = 1000 # again, large to limit monte carlo error
+global const TrainingIters = 10000 # again, large to limit monte carlo error
 global const LayerConfig = 3
-global const BatchProportion = 0.01
+global const BatchProportion = 0.05
 
 # controls of the MSM simulations
 global const nSimulationDraws = 100

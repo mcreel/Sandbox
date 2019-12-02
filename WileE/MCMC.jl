@@ -12,16 +12,13 @@ function MCMC(m, usenn)
     S = nSimulationDraws # number of simulations
     if usenn
         m = transform(m', info)
-        m = model(m').data
-        m = Float64.(m)
+        m = Float64.(model(m'))
     end    
     # set up MCMC
-    tuning = [0.01, 0.01, 0.01] # fix this somehow
     if usenn
         θinit = m # use the NN fit as initial θ
         lnL = θ -> LL(θ, m, S, model)
-    else          # use the prior mean as initial θ 
-        # use a rapid SAMIN to get good initialization values for chain
+    else          # use a rapid SAMIN to get good initialization values for chain
         θinit = (ub+lb)./2.0
         lnL = θ -> LL(θ, m, S)
         obj = θ -> -1.0*lnL(θ)
@@ -31,14 +28,13 @@ function MCMC(m, usenn)
     # define things for MCMC
     verbosity = false
     ChainLength = 500
+    tuning = [0.1, 0.1, 0.1] # fix this somehow
     Proposal = θ -> proposal1(θ, tuning, lb, ub)
     chain = mcmc(θinit, ChainLength, burnin, Prior, lnL, Proposal, verbosity)
     # now use a MVN random walk proposal with updates of covariance and longer chain
     # on final loop
-    θinit = mean(chain[:,1:3],dims=1)[:]
     Σ = NeweyWest(chain[:,1:3])
     tuning = 1.0
-    ChainLength = 500
     MC_loops = 4
     for j = 1:MC_loops
         P = try

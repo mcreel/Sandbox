@@ -3,7 +3,7 @@ function LL(θ, m, S, model)
     k = size(m,1)
     ms = zeros(S, k)
     Threads.@threads for s = 1:S
-        ms[s,:] = Float64.(model(transform(WileE_model(θ[:])', info)').data)
+        ms[s,:] = Float64.(model(transform(WileE_model(θ[:])', info)'))
     end
     mbar = mean(ms,dims=1)[:]
     Σ = cov(ms)
