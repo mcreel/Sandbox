@@ -1,8 +1,7 @@
 using Econometrics, Statistics, Flux, Random, LinearAlgebra
+using Base.Iterators
 using BSON: @load
 using BSON: @save
-
-include("lib/define_iterator.jl")
 
 function Train()
     @load "cooked_data.bson" params statistics
@@ -28,12 +27,10 @@ function Train()
         println("epoch $(lpad(e, 4)): (training) loss = $(round(loss(xin,yin); digits=4)) (testing) loss = $(round(loss(xout,yout); digits=4))| ")
     end
     bestsofar = 1.0e10
-    pred = 0.0 # define is here to have it outside the for loop
-    inbatch = 0
-    for i = 1:TrainingIters
-        inbatch = rand(size(xin,2)) .< BatchProportion
-        batch = DataIterator(xin[:,inbatch],yin[:,inbatch])
-        Flux.train!(loss, θ, batch, opt)
+    pred = 0.0 # define it here to have it outside the for loop
+    batches = [(xin[:,ind],yin[:,ind])  for ind in partition(1:size(yin,2),32)];
+    for i = 1:Epochs
+        Flux.train!(loss, θ, batches, opt)
         current = loss(xout,yout)
         if current < bestsofar
             bestsofar = current

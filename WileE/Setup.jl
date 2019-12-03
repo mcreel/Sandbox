@@ -17,7 +17,7 @@ global const nParams = 3
 # controls of raw draws from prior, for training net
 global const TrainingTestingSize = Int64(5e4) # set fairly large, to limit monte carlo error
 global const TrainingProportion = 0.5
-global const TrainingIters = 10000 # again, large to limit monte carlo error
+global const Epochs = 100 # passes through entire training set
 global const LayerConfig = 3
 global const BatchProportion = 0.05
 
