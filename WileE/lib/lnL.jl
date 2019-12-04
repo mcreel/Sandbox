@@ -1,5 +1,5 @@
 # specialized likelihood for MCMC using net
-function LL(θ, m, S, model)
+function LL(θ, m, S, model, info)
     k = size(m,1)
     ms = zeros(S, k)
     Threads.@threads for s = 1:S

@@ -12,11 +12,8 @@ function MCMC(m, usenn, info)
     if usenn
         m = transform(m', info)
         m = Float64.(model(m'))
-    end    
-    # set up MCMC
-    if usenn
         θinit = m # use the NN fit as initial θ
-        lnL = θ -> LL(θ, m, S, model)
+        lnL = θ -> LL(θ, m, S, model, info)
     else          # use a rapid SAMIN to get good initialization values for chain
         θinit = (ub+lb)./2.0
         lnL = θ -> LL(θ, m, S)
