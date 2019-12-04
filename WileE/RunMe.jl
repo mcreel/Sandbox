@@ -10,25 +10,23 @@ function RunProject()
 MakeData()
 
 # transform the raw statistics, and split out params and stats
-Transform()
-## when this is done, can delete raw_data.bson
+info = Transform()
+# when this is done, can delete raw_data.bson
 
 # train the net using the transformed training/testing data
 Train()
 # when this is done, can delete cooked_data.bson
 
-
-mcreps = 100
 results_raw = zeros(mcreps,12)
 results_NN = zeros(mcreps,12)
 for mcrep = 1:mcreps
     # generate a draw at true params
     m = WileE_model(θtrue)    
     # do full statistic MSM Bayesian estimation
-    chain = MCMC(m, false)
+    chain = MCMC(m, false, info)
     results_raw[mcrep,:] = Analyze(chain)
     # do NN statistic MSM Bayesian estimation
-    chain = MCMC(m, true)
+    chain = MCMC(m, true, info)
     results_NN[mcrep,:] = Analyze(chain)
     println("__________ replication: ", mcrep, "_______________")
     println("Results so far, raw stat")

@@ -12,4 +12,5 @@ function Transform()
     info = create_transformation(statistics)
     statistics = transform(statistics, info)
     @save "cooked_data.bson" params statistics
+    return info
 end    

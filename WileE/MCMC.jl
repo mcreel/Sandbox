@@ -4,9 +4,8 @@ using SV, Flux, Econometrics, LinearAlgebra, Statistics, DelimitedFiles
 using BSON:@load
 include("lib/transform.jl")
 include("lib/lnL.jl")
-global const info = readdlm("transformation_info")
 
-function MCMC(m, usenn)
+function MCMC(m, usenn, info)
     # get the trained net
     @load "best.bson" model
     S = nSimulationDraws # number of simulations
