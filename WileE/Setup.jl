@@ -3,7 +3,7 @@ Pkg.activate(".")
 using SV
 
 # controls and characteristics of model
-global const n = 500
+global const n = 1000
 global const burnin = 100
 
 # the following defines a function that returns a draw of the statistic, given the parameter
