@@ -1,4 +1,4 @@
-using SV, Econometrics, StatsBase, DelimitedFiles
+using Econometrics, StatsBase, DelimitedFiles
 using BSON: @load
 using BSON: @save
 

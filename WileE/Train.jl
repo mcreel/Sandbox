@@ -16,19 +16,20 @@ function Train()
     # model
     nStats = size(xin,1)
     model = Chain(
-        Dense(nStats,LayerConfig*nStats, tanh),
-        Dense(LayerConfig*nStats,LayerConfig*nParams, tanh),
-        Dense(LayerConfig*nParams,nParams)
+        Dense(nStats,5*nParams, relu),
+        Dense(5*nParams, nParams)
     )
     θ = Flux.params(model)
     opt = ADAM()
-    loss(x,y) = Flux.mse(model(x),y)
+    # weight by inverse std. dev. of params, to put equal weight
+    s = Float32.(std(params,dims=1)')
+    loss(x,y) = sqrt.(Flux.mse(model(x)./s,y./s))
     function monitor(e)
         println("epoch $(lpad(e, 4)): (training) loss = $(round(loss(xin,yin); digits=4)) (testing) loss = $(round(loss(xout,yout); digits=4))| ")
     end
     bestsofar = 1.0e10
     pred = 0.0 # define it here to have it outside the for loop
-    batches = [(xin[:,ind],yin[:,ind])  for ind in partition(1:size(yin,2),32)];
+    batches = [(xin[:,ind],yin[:,ind])  for ind in partition(1:size(yin,2), 32)];
     for i = 1:Epochs
         Flux.train!(loss, θ, batches, opt)
         current = loss(xout,yout)

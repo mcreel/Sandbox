@@ -1,9 +1,11 @@
 using Pkg
 Pkg.activate(".")
-using SV
+
+# this is the code for the specific model
+include("SVlib.jl")
 
 # controls and characteristics of model
-global const n = 1000
+global const n = 500
 global const burnin = 100
 
 # the following defines a function that returns a draw of the statistic, given the parameter
@@ -18,7 +20,6 @@ global const nParams = 3
 global const TrainingTestingSize = Int64(5e4) # set fairly large, to limit monte carlo error
 global const TrainingProportion = 0.5
 global const Epochs = 1000 # passes through entire training set
-global const LayerConfig = 3
 
 # controls of the MSM simulations
 global const nSimulationDraws = 100

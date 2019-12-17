@@ -15,9 +15,10 @@ info = Transform()
 
 # train the net using the transformed training/testing data
 Train()
+#include("Importance.jl")
 # when this is done, can delete cooked_data.bson
 
-results_raw = zeros(mcreps,12)
+#results_raw = zeros(mcreps,12)
 results_NN = zeros(mcreps,12)
 for mcrep = 1:mcreps
     # generate a draw at true params

@@ -1,4 +1,4 @@
-using SV, Econometrics, StatsBase
+using Econometrics, StatsBase
 using BSON: @load
 using BSON: @save
 
