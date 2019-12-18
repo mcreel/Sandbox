@@ -20,7 +20,7 @@ function Train()
         Dense(5*nParams, nParams)
     )
     θ = Flux.params(model)
-    opt = ADAM()
+    opt = AdaMax()
     # weight by inverse std. dev. of params, to put equal weight
     s = Float32.(std(params,dims=1)')
     loss(x,y) = sqrt.(Flux.mse(model(x)./s,y./s))

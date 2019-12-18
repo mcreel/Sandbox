@@ -42,14 +42,17 @@ function aux_stat(y)
     s2 = std(y)
     k = std(y.^2.0)
     c = cor(y[1:end-1],y[2:end])
-    cluster = try
-        cluster = quantile(ma(y/s2,4), 0.9) / quantile(ma(y/s2,4),0.1)
+    # ratios of quantiles of moving averages to detect clustering
+    q = try
+        q = quantile(ma(y/s2,4), [0.1, 0.25, 0.75, 0.9])
     catch
-        cluster = 0.0 
+        q = [1.0, 1.0, 0.0, 0.0]
     end
-    vcat(m, s, s2, k, c, cluster, HAR(y))
+        c1 = q[4]/q[1]
+        c2 = q[3]/q[2]
+    #vcat(m, s, s2, k, c, c1, c2, HAR(y))
     # four noise stats
-    #vcat(m, s, s2, k, c, cluster, HAR(y), randn(4)./sqrt(size(y,1)))
+    vcat(m, s, s2, k, c, c1, c2, HAR(y), randn(4)./sqrt(size(y,1)))
 end
 
 
