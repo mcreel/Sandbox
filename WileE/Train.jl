@@ -3,6 +3,17 @@ using Base.Iterators
 using BSON: @load
 using BSON: @save
 
+# unsmoothed QR objective
+function QRobj(yhat, y, τ)
+    ξ = y .- yhat
+    sum(max.(τ.*ξ,(τ .-1.0).*ξ))
+end
+# smoothed QR objective
+function SmoothQRobj(yhat, y, τ, α=0.02)
+    ξ = y .- yhat
+    sum(τ.*ξ .+ α.*log.(1.0 .+ exp.(-1.0 .* ξ./α)))
+end
+
 function Train()
     @load "cooked_data.bson" params statistics
     params = Float32.(params)
@@ -16,14 +27,18 @@ function Train()
     # model
     nStats = size(xin,1)
     model = Chain(
-        Dense(nStats,5*nParams, relu),
+        Dense(nStats,5*nParams, tanh),
         Dense(5*nParams, nParams)
     )
     θ = Flux.params(model)
     opt = AdaMax()
     # weight by inverse std. dev. of params, to put equal weight
     s = Float32.(std(params,dims=1)')
-    loss(x,y) = sqrt.(Flux.mse(model(x)./s,y./s))
+    # Select the objective here: ordinary regression or (smoothed) quantile regression
+    #loss(x,y) = sqrt.(Flux.mse(model(x)./s,y./s))
+    τ = 0.5  # choose the quantile you want
+    #loss(x,y) = QRobj(model(x),y, τ)
+    loss(x,y) = SmoothQRobj(model(x),y, τ)
     function monitor(e)
         println("epoch $(lpad(e, 4)): (training) loss = $(round(loss(xin,yin); digits=4)) (testing) loss = $(round(loss(xout,yout); digits=4))| ")
     end
