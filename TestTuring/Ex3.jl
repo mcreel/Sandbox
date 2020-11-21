@@ -1,16 +1,18 @@
 # the first stage estimation using identity matrix is working
 # ex3 will try to get the second stage to work
 using Turing
-using StatsPlots, Statistics, Optim
-using LinearAlgebra:cholesky,I
+using StatsPlots, Statistics
+using LinearAlgebra
 @model function L(z, P, Σ)
     # priors for parameters
     μ1 ~ Normal(0,5)
     μ2 ~ Normal(0,5)
-    m = auxstat((μ1, μ2), P, 10) # sample is S repetitions of a single sample
+    # get the statistic from simulated sample, S times longer than real
+    S = 10
+    m = auxstat((μ1, μ2), P, S)
+    # likelihood, taking Σ as fixed
     z ~ MvNormal(m, Σ*(1+1/S))
 end
-
 # the dgp is just two MVN random vars
 # the statistic is the quantiles of each, and the correlation
 function auxstat(θ, P, S)
