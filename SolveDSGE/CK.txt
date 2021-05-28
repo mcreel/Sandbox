@@ -5,37 +5,36 @@ k, z1, z2
 end
 
 jumps:
-y, c, n, invest, MUC, MUL, r, w
+y, c, n, MUC, MUL, r, w
 end
 
 shocks:
-e1
-e2
+ϵ₁
+ϵ₂
 end
 
 parameters:
-alppha = 0.33
-betta = 0.99
-delta = 0.025
-gam = 2.0
-rho1 = 0.9
-sigma1 = 0.02 
-rho2 = 0.7
-sigma2 = 0.01
-psi =  3.41744
+α = 0.33
+β = 0.99
+δ = 0.025
+γ = 2.0
+ρ₁ = 0.9
+σ₁ = 0.02 
+ρ₂ = 0.7
+σ₂ = 0.01
+ψ =  3.41744
 end
 
 equations:
-MUC = (c)^(-gam)
-MUL = psi*exp(z2)
-r = alppha * exp(z1) * (k(-1))^(alppha-1) * n^(1-alppha)
-w = (1-alppha)*exp(z1)* (k(-1))^alppha * n^(-alppha)
-MUC = betta*MUC(+1) * (1 + r(+1) - delta)
+MUC = c^(-γ)
+MUL = ψ*exp(z2)
+r = α * exp(z1) * k^(α-1) * n^(1-α)
+w = (1-α)*exp(z1)* k^α * n^(-α)
+MUC = β*MUC(+1) * (1 + r(+1) - δ)
 MUL/MUC = w
-z1(+1) = rho1*z1 + sigma1*e1
-z2(+1) = rho2*z2 + sigma2*e2
-y = exp(z1) * (k^alppha) * (n^(1-alppha))
-invest = y - c
-k(+1) = invest + (1-delta)*k
+z1(+1) = ρ₁*z1 + σ₁*ϵ₁
+z2(+1) = ρ₂*z2 + σ₂*ϵ₂
+y = exp(z1) * (k^α) * (n^(1-α))
+k(+1) = y - c + (1-δ)*k
 end
 

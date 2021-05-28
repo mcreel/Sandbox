@@ -27,14 +27,13 @@ function CKss()
     α, β, δ, γ, ρ₁, σ₁, ρ₂, σ₂, nss = params()
     c1 = ((1/β  + δ  - 1)/α )^(1/(1-α))
     kss = nss/c1
-    iss = δ*kss
     yss = kss^α * nss^(1-α)
-    css = yss - iss
+    css = yss - δ*kss
     MUCss = css^(-γ)
     rss = α * kss^(α-1) * nss^(1-α)
     wss = (1-α)* (kss)^α * nss^(-α)
     MULss = wss*MUCss
-    [0.0, 0.0, kss, kss, yss, css, nss, iss, MUCss, MULss, rss, wss]
+    [0.0, 0.0, kss, kss, yss, css, nss, MUCss, MULss, rss, wss]
 end
 
 #= Use this to verify steady state
