@@ -1,0 +1,41 @@
+# CK 2 shock model from "Indirect Likelihood Inference"
+
+states:
+k, z1, z2
+end
+
+jumps:
+y, c, n, invest, MUC, MUL, r, w
+end
+
+shocks:
+e1
+e2
+end
+
+parameters:
+alppha = 0.33
+betta = 0.99
+delta = 0.025
+gam = 2.0
+rho1 = 0.9
+sigma1 = 0.02 
+rho2 = 0.7
+sigma2 = 0.01
+psi =  3.41744
+end
+
+equations:
+MUC = (c)^(-gam)
+MUL = psi*exp(z2)
+r = alppha * exp(z1) * (k(-1))^(alppha-1) * n^(1-alppha)
+w = (1-alppha)*exp(z1)* (k(-1))^alppha * n^(-alppha)
+MUC = betta*MUC(+1) * (1 + r(+1) - delta)
+MUL/MUC = w
+z1(+1) = rho1*z1 + sigma1*e1
+z2(+1) = rho2*z2 + sigma2*e2
+y = exp(z1) * (k^alppha) * (n^(1-alppha))
+invest = y - c
+k(+1) = invest + (1-delta)*k
+end
+

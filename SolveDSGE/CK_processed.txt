@@ -1,0 +1,244 @@
+nx = 4 
+ 
+ny = 8 
+ 
+ns = 2 
+ 
+nv = 12 
+ 
+ne = 12 
+ 
+jumps_to_approximate = [5, 7] 
+ 
+variables = ["z2", "z1", "k", "klag", "y", "c", "n", "invest", "MUC", "MUL", "r", "w"] 
+ 
+function nlsolve_static_equations(f::Array{T,1},x::Array{T,1}) where {T<:Number} 
+ 
+  f[1] = x[9] - ((x[6])^(-2.0))
+  f[2] = x[10] - (3.41744*exp(x[1]))
+  f[3] = x[11] - (0.33 * exp(x[2]) * (x[4])^(0.33-1) * x[7]^(1-0.33))
+  f[4] = x[12] - ((1-0.33)*exp(x[2])* (x[4])^0.33 * x[7]^(-0.33))
+  f[5] = x[9] - (0.99*x[9] * (1 + x[11] - 0.025))
+  f[6] = x[10]/x[9] - (x[12])
+  f[7] = x[2] - (0.9*x[2] + 0.02*0.0)
+  f[8] = x[1] - (0.7*x[1] + 0.01*0.0)
+  f[9] = x[5] - (exp(x[2]) * (x[3]^0.33) * (x[7]^(1-0.33)))
+  f[10] = x[8] - (x[5] - x[6])
+  f[11] = x[3] - (x[8] + (1-0.025)*x[3])
+  f[12] = x[4] - (x[3])
+
+end 
+ 
+function static_equations(x::Array{T,1}) where {T<:Number} 
+ 
+  f = Array{T}(undef,length(x)) 
+ 
+  f[1] = x[9] - ((x[6])^(-2.0))
+  f[2] = x[10] - (3.41744*exp(x[1]))
+  f[3] = x[11] - (0.33 * exp(x[2]) * (x[4])^(0.33-1) * x[7]^(1-0.33))
+  f[4] = x[12] - ((1-0.33)*exp(x[2])* (x[4])^0.33 * x[7]^(-0.33))
+  f[5] = x[9] - (0.99*x[9] * (1 + x[11] - 0.025))
+  f[6] = x[10]/x[9] - (x[12])
+  f[7] = x[2] - (0.9*x[2] + 0.02*0.0)
+  f[8] = x[1] - (0.7*x[1] + 0.01*0.0)
+  f[9] = x[5] - (exp(x[2]) * (x[3]^0.33) * (x[7]^(1-0.33)))
+  f[10] = x[8] - (x[5] - x[6])
+  f[11] = x[3] - (x[8] + (1-0.025)*x[3])
+  f[12] = x[4] - (x[3])
+
+  return f 
+ 
+end 
+ 
+function dynamic_equations(x::Array{T,1}) where {T<:Number} 
+ 
+  f = Array{T}(undef,12) 
+ 
+  f[1] = x[9] - ((x[6])^(-2.0))
+  f[2] = x[10] - (3.41744*exp(x[1]))
+  f[3] = x[11] - (0.33 * exp(x[2]) * (x[4])^(0.33-1) * x[7]^(1-0.33))
+  f[4] = x[12] - ((1-0.33)*exp(x[2])* (x[4])^0.33 * x[7]^(-0.33))
+  f[5] = x[9] - (0.99*x[21] * (1 + x[23] - 0.025))
+  f[6] = x[10]/x[9] - (x[12])
+  f[7] = x[14] - (0.9*x[2] + 0.02*x[25])
+  f[8] = x[13] - (0.7*x[1] + 0.01*x[26])
+  f[9] = x[5] - (exp(x[2]) * (x[3]^0.33) * (x[7]^(1-0.33)))
+  f[10] = x[8] - (x[5] - x[6])
+  f[11] = x[15] - (x[8] + (1-0.025)*x[3])
+  f[12] = x[16] - (x[3])
+
+  return f 
+ 
+end 
+
+function dynamic_eqn_1(x::Array{T,1}) where {T<:Number} 
+ 
+  f = x[9] - ((x[6])^(-2.0))
+
+  return f 
+ 
+end 
+
+function dynamic_eqn_2(x::Array{T,1}) where {T<:Number} 
+ 
+  f = x[10] - (3.41744*exp(x[1]))
+
+  return f 
+ 
+end 
+
+function dynamic_eqn_3(x::Array{T,1}) where {T<:Number} 
+ 
+  f = x[11] - (0.33 * exp(x[2]) * (x[4])^(0.33-1) * x[7]^(1-0.33))
+
+  return f 
+ 
+end 
+
+function dynamic_eqn_4(x::Array{T,1}) where {T<:Number} 
+ 
+  f = x[12] - ((1-0.33)*exp(x[2])* (x[4])^0.33 * x[7]^(-0.33))
+
+  return f 
+ 
+end 
+
+function dynamic_eqn_5(x::Array{T,1}) where {T<:Number} 
+ 
+  f = x[9] - (0.99*x[21] * (1 + x[23] - 0.025))
+
+  return f 
+ 
+end 
+
+function dynamic_eqn_6(x::Array{T,1}) where {T<:Number} 
+ 
+  f = x[10]/x[9] - (x[12])
+
+  return f 
+ 
+end 
+
+function dynamic_eqn_7(x::Array{T,1}) where {T<:Number} 
+ 
+  f = x[14] - (0.9*x[2] + 0.02*x[25])
+
+  return f 
+ 
+end 
+
+function dynamic_eqn_8(x::Array{T,1}) where {T<:Number} 
+ 
+  f = x[13] - (0.7*x[1] + 0.01*x[26])
+
+  return f 
+ 
+end 
+
+function dynamic_eqn_9(x::Array{T,1}) where {T<:Number} 
+ 
+  f = x[5] - (exp(x[2]) * (x[3]^0.33) * (x[7]^(1-0.33)))
+
+  return f 
+ 
+end 
+
+function dynamic_eqn_10(x::Array{T,1}) where {T<:Number} 
+ 
+  f = x[8] - (x[5] - x[6])
+
+  return f 
+ 
+end 
+
+function dynamic_eqn_11(x::Array{T,1}) where {T<:Number} 
+ 
+  f = x[15] - (x[8] + (1-0.025)*x[3])
+
+  return f 
+ 
+end 
+
+function dynamic_eqn_12(x::Array{T,1}) where {T<:Number} 
+ 
+  f = x[16] - (x[3])
+
+  return f 
+ 
+end 
+
+individual_equations = Array{Function}(undef,12) 
+individual_equations[1] = dynamic_eqn_1
+individual_equations[2] = dynamic_eqn_2
+individual_equations[3] = dynamic_eqn_3
+individual_equations[4] = dynamic_eqn_4
+individual_equations[5] = dynamic_eqn_5
+individual_equations[6] = dynamic_eqn_6
+individual_equations[7] = dynamic_eqn_7
+individual_equations[8] = dynamic_eqn_8
+individual_equations[9] = dynamic_eqn_9
+individual_equations[10] = dynamic_eqn_10
+individual_equations[11] = dynamic_eqn_11
+individual_equations[12] = dynamic_eqn_12
+
+function closure_projection_equations(state,scaled_weights,order,domain,approximate) 
+ 
+  function projection_equations(f::Array{T,1},x::Array{T,1}) where {T<:Number} 
+ 
+    approx5 = approximate(scaled_weights[1],x[8+1:end],order,domain)
+    approx7 = approximate(scaled_weights[2],x[8+1:end],order,domain)
+
+    #f = Array{T}(undef,12) 
+ 
+    f[1] = x[5] - ((x[2])^(-2.0))
+    f[2] = x[6] - (3.41744*exp(state[1]))
+    f[3] = x[7] - (0.33 * exp(state[2]) * (state[4])^(0.33-1) * x[3]^(1-0.33))
+    f[4] = x[8] - ((1-0.33)*exp(state[2])* (state[4])^0.33 * x[3]^(-0.33))
+    f[5] = x[5] - (0.99*approx5 * (1 + approx7 - 0.025))
+    f[6] = x[6]/x[5] - (x[8])
+    f[7] = x[10] - (0.9*state[2] + 0.02*0.0)
+    f[8] = x[9] - (0.7*state[1] + 0.01*0.0)
+    f[9] = x[1] - (exp(state[2]) * (state[3]^0.33) * (x[3]^(1-0.33)))
+    f[10] = x[4] - (x[1] - x[2])
+    f[11] = x[11] - (x[4] + (1-0.025)*state[3])
+    f[12] = x[12] - (state[3])
+
+    #return f 
+ 
+  end 
+ 
+  return projection_equations 
+ 
+end 
+
+function closure_projection_equations_pl(variables,grid,state,integrals,approximate) 
+ 
+  function projection_equations_pl(f::Array{T,1},x::Array{T,1}) where {T<:Number} 
+ 
+    approx5 = approximate(variables[5],grid,x[8+1:end],integrals)
+    approx7 = approximate(variables[7],grid,x[8+1:end],integrals)
+
+    #f = Array{T}(undef,12) 
+ 
+    f[1] = x[5] - ((x[2])^(-2.0))
+    f[2] = x[6] - (3.41744*exp(state[1]))
+    f[3] = x[7] - (0.33 * exp(state[2]) * (state[4])^(0.33-1) * x[3]^(1-0.33))
+    f[4] = x[8] - ((1-0.33)*exp(state[2])* (state[4])^0.33 * x[3]^(-0.33))
+    f[5] = x[5] - (0.99*approx5 * (1 + approx7 - 0.025))
+    f[6] = x[6]/x[5] - (x[8])
+    f[7] = x[10] - (0.9*state[2] + 0.02*0.0)
+    f[8] = x[9] - (0.7*state[1] + 0.01*0.0)
+    f[9] = x[1] - (exp(state[2]) * (state[3]^0.33) * (x[3]^(1-0.33)))
+    f[10] = x[4] - (x[1] - x[2])
+    f[11] = x[11] - (x[4] + (1-0.025)*state[3])
+    f[12] = x[12] - (state[3])
+
+    #return f 
+ 
+  end 
+ 
+  return projection_equations_pl 
+ 
+end 
+
+unassigned_parameters = String[]
