@@ -3,27 +3,22 @@
 # the second layer is a dense nonlinear
 # the third layer is dense linear
 
-using Optim, Statistics
-
+using Statistics
+include("PrintDivider.jl")
+include("samin.jl")
 # Data generating process: returns sample of size n from MA(1) model, and the parameter that generated it
 function dgp(reps)
     n = 100  # for future: make this random?
-    ys = zeros(Float32, reps, n)
-    θs = zeros(Float32, reps)
-    for i = 1:reps
-        ϕ = rand(Float32)
-        e = randn(Float32, n+1)
-        ys[i,:] = e[2:end] .+ ϕ*e[1:end-1] # MA1
+    ys = zeros(n, reps)
+    θs = zeros(reps)
+    Threads.@threads for i = 1:reps
+        ϕ = rand()
+        e = randn(n+1)
+        ys[:,i] = e[2:end] .+ ϕ*e[1:end-1] # MA1
         θs[i] = ϕ
     end
     return ys, θs
 end    
-
-
-# recursive layer to compute the "statistics"
-function R1(h, x, Wh, Wx, b)
-    h = tanh.(Wx*x .+ Wh*h .+ b)
-end
 
 # dense layer, tanh activation
 function DT(x,W,b)
@@ -37,12 +32,12 @@ end
 
 # get the state from inputs
 function state!(h, x, Wh, Wx, b)
-   h = R1(h,x,Wh,Wx,b)
+    h = tanh.(Wx*x .+ Wh*h .+ b)
 end
 
 # net: returns output given state
 function net(h, W1, b1, W2, b2)
-    y = DL(DT(h,W1, b1), W2, b2)
+    y = DL(DT(h, W1, b1), W2, b2)
 end
 
 # initialize parameters of needed sizes
@@ -83,42 +78,47 @@ function params(ϕ, n_inputs, n_states, nodes, n_outputs)
     Wx, Wh, br, W1, b1, W2, b2
 end
 
-function splitParams(params, n_inputs, n_states, nodes, n_outputs)
-
-end    
-function pred(samples, ϕ)
-    n = size(samples,1)
-    yhat = zeros(n, n_outputs)
-    # break out items from parameter vector
-    Wx, Wh, br, W1, b1, W2, b2 = params(ϕ, n_inputs, n_states, nodes, n_outputs)
-    for i = 1:n
-        h = zeros(4) # reset the state with every new sample
-        y = 0.0
-        for j = 1:size(samples,2) # iterate through the obsn. in the sample to get the final state
-            h = state!(h, samples[i,j], Wh, Wx, br) # get stats from the sample, recursively
-        end    
-        yhat[i,:] = net(h, W1, b1, W2, b2)
-    end
-    yhat
-end
-
+function main()
 # make the data for the net: x is input, θ is output 
-nsamples = 1000
-samples, θ = dgp(nsamples)  # these are a nsamples X 100 matrix, and an nsamples vector
+nsamples = 100
 n_inputs = 1
-n_states = 4
-nodes = 10
+n_states = 2
+nodes = 20
+samples, θ = dgp(nsamples)  # these are a nsamples X 100 matrix, and an nsamples vector
 n_outputs = size(θ, 2)
 ϕ = params(n_inputs, n_states, nodes, n_outputs) # initial params
 
-function rmse(samples, θ, ϕ)
-    e = θ - pred(samples, ϕ)
-    sqrt(mean(e.*e, dims=1))[1]
+    function pred(sample, ϕ)
+        # break out items from parameter vector
+        Wx, Wh, br, W1, b1, W2, b2 = params(ϕ, n_inputs, n_states, nodes, n_outputs)
+        h = zeros(n_states) # reset the state with every new sample
+        for i = 1:size(sample,1) # iterate through the obsn. in the sample to get the final state
+            h = state!(h, sample[i], Wh, Wx, br) # get stats from the sample, recursively
+        end    
+        yhat = net(h, W1, b1, W2, b2)[1]
+    end
+
+    function rmse(samples, θ, ϕ)
+        sse = 0.0
+        Threads.@threads for j = 1:size(samples,2)
+            sse += abs2.(θ[j] .- pred(samples[:,j], ϕ))
+        end
+        sse
+    end    
+
+for rep = 1:10 # renew sample each time
+    obj = ϕ -> rmse(samples, θ, ϕ)
+    if rep == 1
+        lb = -2.0 .* ones(size(ϕ))
+        ub = 2.0 .* ones(size(ϕ))
+    else
+        lb = ϕ .- 0.1
+        ub = ϕ .+ 0.1
+    end    
+    ϕ, junk, junk, junk = samin(obj, ϕ, lb, ub, rt=0.25, paramtol = 1.0, functol = 1e-5, coverage_ok = true, verbosity=2, maxevals = 5*size(ϕ,1))
+    samples, θ = dgp(nsamples)  # these are a nsamples X 100 matrix, and an nsamples vector
 end
-
-obj = ϕ -> rmse(samples, θ, ϕ)
-lb = -2.0 .* ones(size(ϕ))
-ub = 2.0 .* ones(size(ϕ))
-θsa = (Optim.optimize(obj, lb, ub, ϕ, SAMIN(rt=0.5, coverage_ok = true, verbosity=3),Optim.Options(iterations=10^6))).minimizer
-
-
+p = [pred(samples[:,i], ϕ )[] for i = 1:nsamples]
+return [θ p]
+end
+main()
