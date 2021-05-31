@@ -1,16 +1,16 @@
 # CK 2 shock model from "Indirect Likelihood Inference"
 
 states:
-k, z1, z2
+k, z, η
 end
 
 jumps:
-y, c, n, MUC, MUL, r, w
+y, c, n, r, w, MUC, MUL
 end
 
 shocks:
-ϵ₁
-ϵ₂
+ϵ
+u
 end
 
 parameters:
@@ -27,14 +27,14 @@ end
 
 equations:
 MUC = c^(-γ)
-MUL = ψ*exp(z2)
-r = α * exp(z1) * k^(α-1) * n^(1-α)
-w = (1-α)*exp(z1)* k^α * n^(-α)
+MUL = ψ*exp(η)
+r = α * exp(z) * k^(α-1) * n^(1-α)
+w = (1-α)*exp(z)* k^α * n^(-α)
 MUC = β*MUC(+1) * (1 + r(+1) - δ)
 MUL/MUC = w
-z1(+1) = ρ₁*z1 + σ₁*ϵ₁
-z2(+1) = ρ₂*z2 + σ₂*ϵ₂
-y = exp(z1) * (k^α) * (n^(1-α))
+z(+1) = ρ₁*z + σ₁*u
+η(+1) = ρ₂*η + σ₂*ϵ
+y = exp(z) * (k^α) * (n^(1-α))
 k(+1) = y - c + (1-δ)*k
 end
 

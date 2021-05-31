@@ -1,4 +1,4 @@
-using SolveDSGE
+using SolveDSGE, StatsPlots
 
 filename = "CK.txt"
 path = joinpath(@__DIR__,filename)
@@ -33,7 +33,7 @@ function CKss()
     rss = α * kss^(α-1) * nss^(1-α)
     wss = (1-α)* (kss)^α * nss^(-α)
     MULss = wss*MUCss
-    [0.0, 0.0, kss, kss, yss, css, nss, MUCss, MULss, rss, wss]
+    [0.0, 0.0, kss, yss, css, nss, rss, wss, MUCss, MULss]
 end
 
 #= Use this to verify steady state
@@ -43,4 +43,10 @@ ss = compute_steady_state(dsge, CKss(), tol, maxiters)
 =#
 scheme = PerturbationScheme(CKss(), 1.0, "third")
 solution = solve_model(dsge, scheme)
+burnin = 1000
+nobs = 160
+data = simulate(solution,CKss()[1:3], burnin+nobs)
+data = data[4:8, burnin+1:end]'
+plot(data, label=["output" "cons" "hours" "r" "w"])
+
 
