@@ -10,16 +10,16 @@ ne = 10
  
 jumps_to_approximate = [4, 6] 
  
-variables = ["z", "η", "k", "y", "c", "n", "r", "w", "MUC", "MUL"] 
+variables = ["z", "η", "k", "y", "c", "n", "rate", "w", "MUC", "MUL"] 
  
 function nlsolve_static_equations(f::Array{T,1},x::Array{T,1},param::Array{T1,1}) where {T<:Number, T1<:Real} 
  
-  f[1] = x[1] - (pax[7]am[5]*x[1] + pax[7]am[6]*0.0)
-  f[2] = x[2] - (pax[7]am[7]*x[2] + pax[7]am[8]*0.0)
+  f[1] = x[1] - (param[5]*x[1] + param[6] * 0.0)
+  f[2] = x[2] - (param[7]*x[2] + param[8] * 0.0)
   f[3] = x[7] - (param[1] * exp(x[1]) * x[3]^(param[1]-1) * x[6]^(1-param[1]))
   f[4] = x[8] - ((1-param[1])*exp(x[1])* x[3]^param[1] * x[6]^(-param[1]))
   f[5] = x[9] - (param[2]*x[9] * (1 + x[7] - param[3]))
-  f[6] = x[10]/x[9] - (x[8])
+  f[6] = x[8] - (x[10]/x[9])
   f[7] = x[9] - (x[5]^(-param[4]))
   f[8] = x[10] - (param[9]*exp(x[2]))
   f[9] = x[4] - (exp(x[1]) * (x[3]^param[1]) * (x[6]^(1-param[1])))
@@ -31,12 +31,12 @@ function static_equations(x::Array{T,1},param::Array{T1,1}) where {T<:Number, T1
  
   f = Array{T}(undef,length(x)) 
  
-  f[1] = x[1] - (pax[7]am[5]*x[1] + pax[7]am[6]*0.0)
-  f[2] = x[2] - (pax[7]am[7]*x[2] + pax[7]am[8]*0.0)
+  f[1] = x[1] - (param[5]*x[1] + param[6] * 0.0)
+  f[2] = x[2] - (param[7]*x[2] + param[8] * 0.0)
   f[3] = x[7] - (param[1] * exp(x[1]) * x[3]^(param[1]-1) * x[6]^(1-param[1]))
   f[4] = x[8] - ((1-param[1])*exp(x[1])* x[3]^param[1] * x[6]^(-param[1]))
   f[5] = x[9] - (param[2]*x[9] * (1 + x[7] - param[3]))
-  f[6] = x[10]/x[9] - (x[8])
+  f[6] = x[8] - (x[10]/x[9])
   f[7] = x[9] - (x[5]^(-param[4]))
   f[8] = x[10] - (param[9]*exp(x[2]))
   f[9] = x[4] - (exp(x[1]) * (x[3]^param[1]) * (x[6]^(1-param[1])))
@@ -50,12 +50,12 @@ function dynamic_equations(x::Array{T,1},param::Array{T1,1}) where {T<:Number, T
  
   f = Array{T}(undef,10) 
  
-  f[1] = x[11] - (pax[7]am[5]*x[1] + pax[7]am[6]*x[22])
-  f[2] = x[12] - (pax[7]am[7]*x[2] + pax[7]am[8]*x[21])
+  f[1] = x[11] - (param[5]*x[1] + param[6] * x[22])
+  f[2] = x[12] - (param[7]*x[2] + param[8] * x[21])
   f[3] = x[7] - (param[1] * exp(x[1]) * x[3]^(param[1]-1) * x[6]^(1-param[1]))
   f[4] = x[8] - ((1-param[1])*exp(x[1])* x[3]^param[1] * x[6]^(-param[1]))
   f[5] = x[9] - (param[2]*x[19] * (1 + x[17] - param[3]))
-  f[6] = x[10]/x[9] - (x[8])
+  f[6] = x[8] - (x[10]/x[9])
   f[7] = x[9] - (x[5]^(-param[4]))
   f[8] = x[10] - (param[9]*exp(x[2]))
   f[9] = x[4] - (exp(x[1]) * (x[3]^param[1]) * (x[6]^(1-param[1])))
@@ -67,7 +67,7 @@ end
 
 function dynamic_eqn_1(x::Array{T,1},param::Array{T1,1}) where {T<:Number, T1<:Real} 
  
-  f = x[11] - (pax[7]am[5]*x[1] + pax[7]am[6]*x[22])
+  f = x[11] - (param[5]*x[1] + param[6] * x[22])
 
   return f 
  
@@ -75,7 +75,7 @@ end
 
 function dynamic_eqn_2(x::Array{T,1},param::Array{T1,1}) where {T<:Number, T1<:Real} 
  
-  f = x[12] - (pax[7]am[7]*x[2] + pax[7]am[8]*x[21])
+  f = x[12] - (param[7]*x[2] + param[8] * x[21])
 
   return f 
  
@@ -107,7 +107,7 @@ end
 
 function dynamic_eqn_6(x::Array{T,1},param::Array{T1,1}) where {T<:Number, T1<:Real} 
  
-  f = x[10]/x[9] - (x[8])
+  f = x[8] - (x[10]/x[9])
 
   return f 
  
@@ -166,12 +166,12 @@ function closure_projection_equations(state,scaled_weights,order,domain,approxim
 
     #f = Array{T}(undef,10) 
  
-    f[1] = x[8] - (pax[4]am[5]*state[1] + pax[4]am[6]*0.0)
-    f[2] = x[9] - (pax[4]am[7]*state[2] + pax[4]am[8]*0.0)
+    f[1] = x[8] - (param[5]*state[1] + param[6] * 0.0)
+    f[2] = x[9] - (param[7]*state[2] + param[8] * 0.0)
     f[3] = x[4] - (param[1] * exp(state[1]) * state[3]^(param[1]-1) * x[3]^(1-param[1]))
     f[4] = x[5] - ((1-param[1])*exp(state[1])* state[3]^param[1] * x[3]^(-param[1]))
     f[5] = x[6] - (param[2]*approx6 * (1 + approx4 - param[3]))
-    f[6] = x[7]/x[6] - (x[5])
+    f[6] = x[5] - (x[7]/x[6])
     f[7] = x[6] - (x[2]^(-param[4]))
     f[8] = x[7] - (param[9]*exp(state[2]))
     f[9] = x[1] - (exp(state[1]) * (state[3]^param[1]) * (x[3]^(1-param[1])))
@@ -194,12 +194,12 @@ function closure_projection_equations_pl(variables,grid,state,integrals,approxim
 
     #f = Array{T}(undef,10) 
  
-    f[1] = x[8] - (pax[4]am[5]*state[1] + pax[4]am[6]*0.0)
-    f[2] = x[9] - (pax[4]am[7]*state[2] + pax[4]am[8]*0.0)
+    f[1] = x[8] - (param[5]*state[1] + param[6] * 0.0)
+    f[2] = x[9] - (param[7]*state[2] + param[8] * 0.0)
     f[3] = x[4] - (param[1] * exp(state[1]) * state[3]^(param[1]-1) * x[3]^(1-param[1]))
     f[4] = x[5] - ((1-param[1])*exp(state[1])* state[3]^param[1] * x[3]^(-param[1]))
     f[5] = x[6] - (param[2]*approx6 * (1 + approx4 - param[3]))
-    f[6] = x[7]/x[6] - (x[5])
+    f[6] = x[5] - (x[7]/x[6])
     f[7] = x[6] - (x[2]^(-param[4]))
     f[8] = x[7] - (param[9]*exp(state[2]))
     f[9] = x[1] - (exp(state[1]) * (state[3]^param[1]) * (x[3]^(1-param[1])))
