@@ -1,3 +1,11 @@
+# this block reads and processes the file, leave it be
+filename = "CK.txt"
+path = joinpath(@__DIR__,filename)
+process_model(path)
+processed_filename = "CK_processed.txt"
+processed_path =  joinpath(@__DIR__,processed_filename)
+dsge = retrieve_processed_model(processed_path)
+
 function TrueParameters()
 [0.33,  # α 
  0.99,  # β
