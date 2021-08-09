@@ -54,6 +54,6 @@ function MakeData(model::SNMmodel; TrainTestSize=1)
     end
     nninfo = (q01, q50, q99, iqr) 
     statistics = TransformStats(statistics, nninfo)
-    parameters, statistics
+    params, statistics
 end    
      
