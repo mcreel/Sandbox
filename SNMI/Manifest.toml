@@ -1078,9 +1078,9 @@ uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
 
 [[OpenMPI_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "e0914cbfcc96f1b9097ca99cef1ae73a7b0efda9"
+git-tree-sha1 = "a784e5133fc7e204c900f2cf38ed37a92ff9248d"
 uuid = "fe0851c0-eecd-5654-98d4-656369965a5c"
-version = "4.1.1+1"
+version = "4.1.1+2"
 
 [[OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
