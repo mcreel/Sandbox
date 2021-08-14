@@ -87,12 +87,13 @@ function MakeData(model::SNMmodel; TrainTestSize=1)
     statistics = zeros(TrainTestSize,size(model.auxstat(model.lb,1)[1],1))
     Threads.@threads for s = 1:TrainTestSize
         ok = false
-        θ = model.priordraw()
-        W = (model.auxstat(θ,1))[1]
+        θ = zeros(2) # define at this scope
+        W = zeros(2)
         # repeat draw if necessary
-        while any(isnan.(W))
+        while !ok
             θ = model.priordraw()
             W = model.auxstat(θ,1)[1]
+            ok = (any(isnan.(W))==false) & (abs(W[1]) < 10)  # reject if nans or if returns too high
         end    
         params[s,:] = θ
         statistics[s,:] = W
