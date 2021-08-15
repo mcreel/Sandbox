@@ -9,9 +9,10 @@ model = SNMmodel("SP500 estimation", lb, ub, InSupport, Prior, PriorDraw, auxsta
 
 # make the training data for the nets
 params, statistics = MakeData(model)
-@save "data.bson" params statistics
-# @load "data.bson" params statistics
-# df = convert(DataFrame, statistics)
+#@save "data.bson" params statistics
+@load "data.bson" params statistics
+df = convert(DataFrame, statistics)
+@df df boxplot(cols(1:25))
 # params = (params .- mean(params,dims=1)) ./std(params,dims=1)
 # statistics = (statistics .- mean(statistics,dims=1)) ./std(statistics,dims=1)
 
