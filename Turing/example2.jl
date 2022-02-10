@@ -32,10 +32,12 @@ zs = zeros(S,size(z,1))
     z ~ MvNormal(m, Σ)
 end;
 
-# sample chains, 8 chains of length 1000, with 100 burnins dropped
+# sample chains, 4 chains of length 1000, with 100 burnins dropped
+length = 1000
+burnin = 100
 chain = sample(abc(z), 
-               MH(:θ => AdvancedMH.RandomWalkProposal(MvNormal(zeros(2), 0.25*I))), MCMCThreads(), 2100, 8)
-chain = chain[101:end,:,:]
+               MH(:θ => AdvancedMH.RandomWalkProposal(MvNormal(zeros(2), 0.25*I))), MCMCThreads(), length+burnin, 4)
+chain = chain[burnin+1:end,:,:]
 display(chain)
 p = plot(chain)
 display(p)
