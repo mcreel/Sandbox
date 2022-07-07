@@ -158,5 +158,19 @@ SV model.
  Look for correlations as above.
 \end_layout
 
+\begin_layout Enumerate
+for DSGE, there is strong relationship between 
+\begin_inset Formula $\beta$
+\end_inset
+
+ and 
+\begin_inset Formula $\bar{n}$
+\end_inset
+
+.
+ For JD, there are some others.
+ Run explore.jl to see them.
+\end_layout
+
 \end_body
 \end_document
