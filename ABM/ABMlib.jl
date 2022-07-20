@@ -9,13 +9,13 @@
 # effects in financial markets: A simulated method of moments
 # approach." Computational Economics 52, no. 3 (2018): 711-744.
 
-using Random, Statistics
+using Random, Statistics, StatsBase
 
 @views function ABMmodel(θ, rndseed=1234)
 Random.seed!(rndseed)
 a, b, σf = θ
-T = 2000 # sample size (days)
-burnin = 1000 # burn in period (days)
+T = 20000 # sample size (days)
+burnin = 5000 # burn in period (days)
 # numbers of agents
 Nc = 100  # number of noise traders
 n = 50    # initial number of traders in optimistic state
@@ -51,15 +51,14 @@ function auxstat(θ, reps)
     auxstat.([ABMmodel(θ, rand(1:Int64(1e12))) for i = 1:reps])  # reps draws of data
 end
 
-#= 
 # Moments from Chen and Lux, 2018
 # moments: method for a given sample
 @views function auxstat(r)
-    stats = sqrt(size(r,1)) .* [
-    mean(r .^ 2.0),                             # m1
+    stats = sqrt(size(r,1)) .* vcat(
+    # mean(r .^ 2.0),                             # m1
     mean(r[2:end] .* r[1:end-1]),               # m2
     mean((r[2:end] .* r[1:end-1]) .^ 2.0),      # m3
-    mean(r .^ 4.0),                             # m4
+    # mean(r .^ 4.0),                             # m4
     mean(abs.(r[2:end]) .* abs.(r[1:end-1])),   # m5
     mean((r[6:end] .* r[1:end-5]) .^ 2.0),      # m6
     mean(abs.(r[6:end]) .* abs.(r[1:end-5])),   # m7
@@ -70,30 +69,12 @@ end
     mean((r[21:end] .* r[1:end-20]) .^ 2.0),    # m12
     mean(abs.(r[21:end]) .* abs.(r[1:end-20])), # m13
     mean((r[26:end] .* r[1:end-25]) .^ 2.0),    # m14
-    mean(abs.(r[26:end]) .* abs.(r[1:end-25]))  # m15
-   ]
+    mean(abs.(r[26:end]) .* abs.(r[1:end-25])),  # m15
+    std(r),
+    kurtosis(r),
+    quantile(r, [0.01, 0.1,0.2, 0.5, 0.8, 0.9, 0.99])
+    )
 end    
-=#
-# method for a given sample
-@views function auxstat(r)
-	s = std(r)
-    k = kurtosis(r)
-	r = abs.(r)
-	m = mean(r)
-	s2 = std(r)
-    r = r./s2
-	c = cor(r[1:end-1],r[2:end])
-	# ratios of quantiles of moving averages to detect clustering
-	#q = try
-	    q = quantile((ma(r,3)[3:end]), [0.25, 0.75])
-	#catch
-#	    q = [1.0, 1.0]
-	#end
-#@show q
-c1 = log(q[2]) - log(q[1])
-#    h = HAR(r)
-    stats = sqrt(size(r,1)) .* [m, s, s2, k, c, c1]
-end
 
 function TrueParameters()
     [0.0003, 0.0014, 0.03]
@@ -104,8 +85,8 @@ end
 # models in economics: a case study. Studies in Nonlinear Dynamics & Econometrics. 
 # https://doi.org/10.1515/snde-2021-0052
 function PriorSupport()
-    lb = [0.0, 0.0, 0.0]
-    ub = [0.05, 0.05, 5.0*0.038843]
+    lb = [0.0, 0.0, 0.001]
+    ub = [0.003, 0.014, 5.0*0.038843] # upper vals for a, b are 10X true vals
     lb,ub
 end    
 
