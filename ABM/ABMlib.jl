@@ -55,10 +55,10 @@ end
 # moments: method for a given sample
 @views function auxstat(r)
     stats = sqrt(size(r,1)) .* vcat(
-    # mean(r .^ 2.0),                             # m1
+    mean(r .^ 2.0),                             # m1
     mean(r[2:end] .* r[1:end-1]),               # m2
     mean((r[2:end] .* r[1:end-1]) .^ 2.0),      # m3
-    # mean(r .^ 4.0),                             # m4
+    mean(r .^ 4.0),                             # m4
     mean(abs.(r[2:end]) .* abs.(r[1:end-1])),   # m5
     mean((r[6:end] .* r[1:end-5]) .^ 2.0),      # m6
     mean(abs.(r[6:end]) .* abs.(r[1:end-5])),   # m7
@@ -70,9 +70,10 @@ end
     mean(abs.(r[21:end]) .* abs.(r[1:end-20])), # m13
     mean((r[26:end] .* r[1:end-25]) .^ 2.0),    # m14
     mean(abs.(r[26:end]) .* abs.(r[1:end-25])),  # m15
-    std(r),
-    kurtosis(r),
-    quantile(r, [0.01, 0.1,0.2, 0.5, 0.8, 0.9, 0.99])
+    mean(abs.(r)),
+    std(abs.(r)), 
+    quantile(r, [0.01,  0.1, 0.2, 0.8, 0.9, 0.99]),
+    quantile(abs.(r), [0.01, 0.1,0.2, 0.8, 0.9, 0.99])
     )
 end    
 
@@ -109,49 +110,4 @@ function PriorDraw()
 end    
 
 
-# taken from https://github.com/mcreel/Econometrics  
-# returns the variable (or matrix), lagged p times,
-# with the first p rows filled with ones (to avoid divide errors)
-# remember to drop those rows before doing analysis
-@views function lag(x,p)
-	n = size(x,1)
-    k = size(x,2)
-	lagged_x = [ones(p,k); x[1:n-p,:]]
-end
 
-# returns the variable (or matrix), lagged from 1 to p times,
-# with the first p rows filled with ones (to avoid divide errors)
-# remember to drop those rows before doing analysis
-@views function  lags(x,p)
-	n = size(x,1)
-	k = size(x,2)
-	lagged_x = zeros(eltype(x),n,p*k)
-	for i = 1:p
-		lagged_x[:,i*k-k+1:i*k] = lag(x,i)
-	end
-    return lagged_x
-end	
- 
-# compute moving average using p most recent values, including current value
-@views function ma(x, p)
-    m = zeros(size(x))
-    for i = p:size(x,1)
-        m[i] = mean(x[i-p+1:i])
-    end
-    return m
-end
-
-# auxiliary model: HAR-RV
-# Corsi, Fulvio. "A simple approximate long-memory model
-# of realized volatility." Journal of Financial Econometrics 7,
-# no. 2 (2009): 174-196.
-@views function HAR(y)
-    ylags = lags(y,10)
-    X = [ones(size(y,1)) ylags[:,1]  mean(ylags[:,2:5],dims=2) mean(ylags[:,6:10],dims=2)]
-    # drop missings
-    y = y[11:end]
-    X = X[11:end,:]
-    βhat = X\y
-    σhat = std(y-X*βhat)     
-    vcat(βhat,σhat)
-end

@@ -1,9 +1,10 @@
-using SimulatedNeuralMoments, DelimitedFiles
+#using SimulatedNeuralMoments
+using DelimitedFiles
 using Flux, Turing, MCMCChains, AdvancedMH
 using StatsPlots, DelimitedFiles, LinearAlgebra
 using BSON:@save
 using BSON:@load
-
+include("SimulatedNeuralMoments.jl")
 # the model-specific code
 include("ABMlib.jl")
 function main()
@@ -12,12 +13,12 @@ reps = 100
 results = zeros(reps, 13)
 # setting for sampling
 names = ["a", "b", "σf"]
-S = 20
+S = 30
 covreps = 500
 length = 250
 nchains = 4
-burnin = 50
-tuning = 3.0 # increase to lower acceptance rate
+burnin = 100
+tuning = 2.0 # increase to lower acceptance rate
 
 # fill in the structure that defines the model
 lb, ub = PriorSupport() # bounds of support
@@ -62,6 +63,7 @@ for rep = 1:reps
     qu = q.nt[end] # 97.5% quantile
     qm = q.nt[4] # median
     results[rep,:] = vcat(θhat, qm, ql, qu, acceptance)
+    dstats(results[1:rep, [1:6;13]])
 end
 end
 results = main()
