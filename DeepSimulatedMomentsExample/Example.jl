@@ -13,8 +13,8 @@ function make_net(dev)
     tcn = build_tcn(dgp, kernel_size=32, channels=64); # Build a TCN for this DGP
     # Set up the hyperparameters
     hp = HyperParameters(
-        validation_size=5_000, loss=rmse_conv, 
-        print_every=10, nsamples=10000, epochs=2, dev=dev, batchsize=256
+        validation_size=10_000, loss=rmse_conv, 
+        print_every=10, nsamples=50_000, epochs=2, dev=dev, batchsize=128
     )
     # Create the net
     net = MomentNetwork(
@@ -42,7 +42,7 @@ end
  
 function main()
 
-# train_net(dgp)  # comment out when net is trained
+#train_net(dgp)  # comment out when net is trained
 
 net = load_trained()
 data, θtrue = generate(dgp, net, 1)
