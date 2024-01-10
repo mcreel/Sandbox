@@ -73,7 +73,7 @@ chain = mcmc(θnn, θnn, δ, Σₚ, S, net, dgp; burnin=0, chainlength=2000)
 chn = Chains(chain[:,1:end-2], ["θ₁", "θ₂"])
 plot(chn)
 savefig("chain.png")
-pretty_table([θtrue[:] Float64.(θnn[:]) mean(chain[:,1:end-2],dims=1)[:]], header = (["θtrue", "θnn", "θmcmc"]))
+pretty_table([θtrue[:] Float64.(θnn[:]) mean(chain[:,1:end-2],dims=1)[:]], header = (["θtrue", "θnn", "θpos_mean"]))
 display(chn)
 end
 main()
